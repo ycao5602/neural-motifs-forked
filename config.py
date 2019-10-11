@@ -18,10 +18,10 @@ def stanford_path(fn):
 # Update these with where your data is stored ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # VG_IMAGES = DATA_PATH+'/VG_100K_2'
-VG_IMAGES = DATA_PATH+'/val2014'
+VG_IMAGES = DATA_PATH+'/train2014'
 RCNN_CHECKPOINT_FN = path('faster_rcnn_500k.h5')
 
-IM_DATA_FN = path('annotations/captions_val2014.json')
+IM_DATA_FN = path('annotations/captions_train2014.json')
 VG_SGG_FN = path('VG-SGG.h5')
 VG_SGG_DICT_FN = path('VG-SGG-dicts.json')
 PROPOSAL_FN = path('proposals.h5')

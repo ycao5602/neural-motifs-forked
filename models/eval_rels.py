@@ -102,10 +102,10 @@ else:
         #     break
         all_batches.extend(batch.ids)
         val_batch(conf.num_gpus*val_b, batch)
-        if val_b%1000==0 and not val_b==0:
+        if val_b%10000==0 and not val_b==0:
             print('saving for batch: ',val_b)
             predictions = dict(zip(all_batches, all_pred_entries))
-            torch.save(predictions, 'img_sg_val_'+str(val_b)+'.pt')
+            torch.save(predictions, 'train/img_sg_'+str(val_b)+'.pt')
             all_pred_entries=[]
             all_batches=[]
 
