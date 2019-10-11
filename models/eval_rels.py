@@ -46,7 +46,7 @@ detector = RelModel(classes=train.ind_to_classes, rel_classes=train.ind_to_predi
 
 detector.cuda()
 ckpt = torch.load(conf.ckpt)
-
+print('loaded checkpoint')
 optimistic_restore(detector, ckpt['state_dict'])
 # if conf.mode == 'sgdet':
 #     det_ckpt = torch.load('checkpoints/new_vgdet/vg-19.tar')['state_dict']
@@ -57,19 +57,19 @@ optimistic_restore(detector, ckpt['state_dict'])
 
 all_pred_entries = []
 all_batches=[]
-def val_batch(batch_num, b, evaluator, thrs=(20, 50, 100)):
+def val_batch(batch_num, b, thrs=(20, 50, 100)):
     det_res = detector[b]
     if conf.num_gpus == 1:
         det_res = [det_res]
 
     for i, (boxes_i, objs_i, obj_scores_i, rels_i, pred_scores_i) in enumerate(det_res):
-        gt_entry = {
-            'gt_classes': val.gt_classes[batch_num + i].copy(),
-            'gt_relations': val.relationships[batch_num + i].copy(),
-            'gt_boxes': val.gt_boxes[batch_num + i].copy(),
-        }
-        assert np.all(objs_i[rels_i[:,0]] > 0) and np.all(objs_i[rels_i[:,1]] > 0)
-        # assert np.all(rels_i[:,2] > 0)
+        # gt_entry = {
+        #     'gt_classes': val.gt_classes[batch_num + i].copy(),
+        #     'gt_relations': val.relationships[batch_num + i].copy(),
+        #     'gt_boxes': val.gt_boxes[batch_num + i].copy(),
+        # }
+        # assert np.all(objs_i[rels_i[:,0]] > 0) and np.all(objs_i[rels_i[:,1]] > 0)
+        # # assert np.all(rels_i[:,2] > 0)
 
         pred_entry = {
             'pred_boxes': boxes_i * BOX_SCALE/IM_SCALE,
@@ -81,7 +81,7 @@ def val_batch(batch_num, b, evaluator, thrs=(20, 50, 100)):
         all_pred_entries.append(pred_entry)
 
 
-evaluator = BasicSceneGraphEvaluator.all_modes(multiple_preds=conf.multi_pred)
+# evaluator = BasicSceneGraphEvaluator.all_modes(multiple_preds=conf.multi_pred)
 if conf.cache is not None and os.path.exists(conf.cache):
     print("Found {}! Loading from it".format(conf.cache))
     with open(conf.cache,'rb') as f:
@@ -99,7 +99,7 @@ else:
         if val_b>10:
             break
         all_batches.extend(batch.ids)
-        val_batch(conf.num_gpus*val_b, batch, evaluator)
+        val_batch(conf.num_gpus*val_b, batch)
 
 predictions = dict(zip(all_batches, all_pred_entries))
 torch.save(predictions,'img_sg_val.pt')
