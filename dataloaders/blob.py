@@ -69,7 +69,7 @@ class Blob(object):
         """
         i = len(self.imgs)
         self.imgs.append(d['img'])
-        self.ids.append(d['fn'])
+        self.ids.append(d['fn'].split('/')[-1].split('.')[0])
 
         h, w, scale = d['img_size']
 
