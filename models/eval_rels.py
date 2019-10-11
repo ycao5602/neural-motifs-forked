@@ -48,6 +48,7 @@ detector.cuda()
 ckpt = torch.load(conf.ckpt)
 print('loaded checkpoint')
 optimistic_restore(detector, ckpt['state_dict'])
+print('restored')
 # if conf.mode == 'sgdet':
 #     det_ckpt = torch.load('checkpoints/new_vgdet/vg-19.tar')['state_dict']
 #     detector.detector.bbox_fc.weight.data.copy_(det_ckpt['bbox_fc.weight'])
@@ -96,6 +97,7 @@ if conf.cache is not None and os.path.exists(conf.cache):
 else:
     detector.eval()
     for val_b, batch in enumerate(tqdm(val_loader)):
+        print('val_b',val_b)
         if val_b>10:
             break
         all_batches.extend(batch.ids)
