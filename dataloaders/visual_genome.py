@@ -143,7 +143,7 @@ class VG(Dataset):
 
         # Optionally flip the image if we're doing training
         flipped = self.is_train and np.random.random() > 0.5
-        gt_boxes = self.gt_boxes[index].copy()
+        gt_boxes = self.gt_boxes[index%10000].copy()
 
         # Boxes are already at BOX_SCALE
         if self.is_train:
@@ -173,7 +173,7 @@ class VG(Dataset):
         else:
             im_size = (IM_SCALE, IM_SCALE, img_scale_factor)
 
-        gt_rels = self.relationships[index].copy()
+        gt_rels = self.relationships[index%10000].copy()
         if self.filter_duplicate_rels:
             # Filter out dupes!
             assert self.mode == 'train'
@@ -188,7 +188,7 @@ class VG(Dataset):
             'img': self.transform_pipeline(image_unpadded),
             'img_size': im_size,
             'gt_boxes': gt_boxes,
-            'gt_classes': self.gt_classes[index].copy(),
+            'gt_classes': self.gt_classes[index%10000].copy(),
             'gt_relations': gt_rels,
             'scale': IM_SCALE / BOX_SCALE,  # Multiply the boxes by this.
             'index': index,
