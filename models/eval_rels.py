@@ -62,7 +62,7 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
     det_res = detector[b]
     if conf.num_gpus == 1:
         det_res = [det_res]
-    print('det res: ',det res)
+    print('det res: ',det_res)
 
     for i, (boxes_i, objs_i, obj_scores_i, rels_i, pred_scores_i) in enumerate(det_res):
         # gt_entry = {
