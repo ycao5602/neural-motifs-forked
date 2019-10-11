@@ -24,7 +24,7 @@ train, val, test = VG.splits(num_val_im=conf.val_size, filter_duplicate_rels=Tru
                           filter_non_overlap=conf.mode == 'sgdet')
 if conf.test:
     val = test
-train_loader, val_loader = VGDataLoader.splits(train, val, mode='rel',
+_, val_loader = VGDataLoader.splits(train, val, mode='rel',
                                                batch_size=conf.batch_size,
                                                num_workers=conf.num_workers,
                                                num_gpus=conf.num_gpus)
@@ -97,11 +97,17 @@ if conf.cache is not None and os.path.exists(conf.cache):
 else:
     detector.eval()
     for val_b, batch in enumerate(tqdm(val_loader)):
-        print('val_b',val_b)
-        if val_b>10:
-            break
+        # print('val_b',val_b)
+        # if val_b>10:
+        #     break
         all_batches.extend(batch.ids)
         val_batch(conf.num_gpus*val_b, batch)
+        if val_b%1000==0 and not val_b==1000:
+            print('saving for batch: ',val_b)
+            predictions = dict(zip(all_batches, all_pred_entries))
+            torch.save(predictions, 'img_sg_val_'+str(val_b)+'.pt')
+            all_pred_entries=[]
+            all_batches=[]
 
-predictions = dict(zip(all_batches, all_pred_entries))
-torch.save(predictions,'img_sg_val.pt')
+# predictions = dict(zip(all_batches, all_pred_entries))
+# torch.save(predictions,'img_sg_val.pt')
