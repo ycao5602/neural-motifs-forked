@@ -56,6 +56,7 @@ optimistic_restore(detector, ckpt['state_dict'])
 #     detector.detector.score_fc.bias.data.copy_(det_ckpt['score_fc.bias'])
 
 all_pred_entries = []
+all_batches=[]
 def val_batch(batch_num, b, evaluator, thrs=(20, 50, 100)):
     det_res = detector[b]
     if conf.num_gpus == 1:
@@ -79,10 +80,6 @@ def val_batch(batch_num, b, evaluator, thrs=(20, 50, 100)):
         }
         all_pred_entries.append(pred_entry)
 
-        evaluator[conf.mode].evaluate_scene_graph_entry(
-            gt_entry,
-            pred_entry,
-        )
 
 evaluator = BasicSceneGraphEvaluator.all_modes(multiple_preds=conf.multi_pred)
 if conf.cache is not None and os.path.exists(conf.cache):
@@ -95,18 +92,14 @@ if conf.cache is not None and os.path.exists(conf.cache):
             'gt_relations': val.relationships[i].copy(),
             'gt_boxes': val.gt_boxes[i].copy(),
         }
-        evaluator[conf.mode].evaluate_scene_graph_entry(
-            gt_entry,
-            pred_entry,
-        )
-    evaluator[conf.mode].print_stats()
+
 else:
     detector.eval()
     for val_b, batch in enumerate(tqdm(val_loader)):
+        if val_b>10:
+            break
+        all_batches.extend(batch.ids)
         val_batch(conf.num_gpus*val_b, batch, evaluator)
 
-    evaluator[conf.mode].print_stats()
-
-    if conf.cache is not None:
-        with open(conf.cache,'wb') as f:
-            pkl.dump(all_pred_entries, f)
+predictions = dict(zip(all_batches, all_pred_entries))
+torch.save(predictions,'img_sg_val.pt')

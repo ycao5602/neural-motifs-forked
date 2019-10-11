@@ -193,7 +193,7 @@ class VG(Dataset):
             'scale': IM_SCALE / BOX_SCALE,  # Multiply the boxes by this.
             'index': index,
             'flipped': flipped,
-            'fn': self.filenames[index],
+            'fn': self.filenames[index]
         }
 
         if self.rpn_rois is not None:

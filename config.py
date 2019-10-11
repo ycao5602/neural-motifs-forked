@@ -5,7 +5,7 @@ import os
 from argparse import ArgumentParser
 import numpy as np
 
-ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
+ROOT_PATH = '/share/yutong/projects/neural-motifs/'
 DATA_PATH = os.path.join(ROOT_PATH, 'data')
 
 def path(fn):
@@ -17,13 +17,13 @@ def stanford_path(fn):
 # =============================================================================
 # Update these with where your data is stored ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-VG_IMAGES = '/home/rowan/datasets2/VG_100K_2/VG_100K'
+VG_IMAGES = DATA_PATH+'/VG_100K_2'
 RCNN_CHECKPOINT_FN = path('faster_rcnn_500k.h5')
 
-IM_DATA_FN = stanford_path('image_data.json')
-VG_SGG_FN = stanford_path('VG-SGG.h5')
-VG_SGG_DICT_FN = stanford_path('VG-SGG-dicts.json')
-PROPOSAL_FN = stanford_path('proposals.h5')
+IM_DATA_FN = path('image_data.json')
+VG_SGG_FN = path('VG-SGG.h5')
+VG_SGG_DICT_FN = path('VG-SGG-dicts.json')
+PROPOSAL_FN = path('proposals.h5')
 
 COCO_PATH = '/home/rowan/datasets/mscoco'
 # =============================================================================

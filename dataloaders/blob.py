@@ -21,6 +21,7 @@ class Blob(object):
         self.num_gpus = num_gpus
         self.batch_size_per_gpu = batch_size_per_gpu
         self.primary_gpu = primary_gpu
+        self.ids=[]
 
         self.imgs = []  # [num_images, 3, IM_SCALE, IM_SCALE] array
         self.im_sizes = []  # [num_images, 4] array of (h, w, scale, num_valid_anchors)
@@ -68,6 +69,7 @@ class Blob(object):
         """
         i = len(self.imgs)
         self.imgs.append(d['img'])
+        self.ids.append(d['fn'])
 
         h, w, scale = d['img_size']
 
