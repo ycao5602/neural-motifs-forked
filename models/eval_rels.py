@@ -111,5 +111,5 @@ else:
             all_pred_entries=[]
             all_batches=[]
 
-# predictions = dict(zip(all_batches, all_pred_entries))
-# torch.save(predictions,'img_sg_val.pt')
+    predictions = dict(zip(all_batches, all_pred_entries))
+    torch.save(predictions, 'img_sg_val_' + str(val_b) + '.pt')
