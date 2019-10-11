@@ -19,6 +19,13 @@ from dataloaders.image_transforms import SquarePad, Grayscale, Brightness, Sharp
 from collections import defaultdict
 from pycocotools.coco import COCO
 
+SEED = 1
+
+torch.manual_seed(SEED)
+torch.cuda.manual_seed(SEED)
+torch.cuda.manual_seed_all(SEED)
+np.random.seed(SEED)
+
 
 class VG(Dataset):
     def __init__(self, mode, roidb_file=VG_SGG_FN, dict_file=VG_SGG_DICT_FN,
