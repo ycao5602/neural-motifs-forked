@@ -101,6 +101,7 @@ else:
         # print('val_b',val_b)
         # if val_b>10:
         #     break
+        print('batch.ids')
         all_batches.extend(batch.ids)
         val_batch(conf.num_gpus*val_b, batch)
         if val_b%10000==0 and not val_b==0:
