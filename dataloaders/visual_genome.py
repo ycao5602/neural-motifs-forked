@@ -245,7 +245,7 @@ def load_image_filenames(image_file, image_dir=VG_IMAGES):
     :return: List of filenames corresponding to the good images
     """
     with open(image_file, 'r') as f:
-        im_data = json.load(f)['info']
+        im_data = json.load(f)['images']
 
     # corrupted_ims = ['1592.jpg', '1722.jpg', '4616.jpg', '4617.jpg']
     fns = []
