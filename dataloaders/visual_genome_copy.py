@@ -245,14 +245,14 @@ def load_image_filenames(image_file, image_dir=VG_IMAGES):
     :return: List of filenames corresponding to the good images
     """
     with open(image_file, 'r') as f:
-        im_data = json.load(f)['info']
+        im_data = json.load(f)
 
-    # corrupted_ims = ['1592.jpg', '1722.jpg', '4616.jpg', '4617.jpg']
+    corrupted_ims = ['1592.jpg', '1722.jpg', '4616.jpg', '4617.jpg']
     fns = []
     for i, img in enumerate(im_data):
-        basename = '{}.jpg'.format(img['file_name'])
-        # if basename in corrupted_ims:
-        #     continue
+        basename = '{}.jpg'.format(img['image_id'])
+        if basename in corrupted_ims:
+            continue
 
         filename = os.path.join(image_dir, basename)
         if os.path.exists(filename):
