@@ -28,9 +28,9 @@ def get_counts(train_data=VG(mode='train', filter_duplicate_rels=False, num_val_
     ), dtype=np.int64)
 
     for ex_ind in range(len(train_data)):
-        gt_classes = train_data.gt_classes[ex_ind].copy()
-        gt_relations = train_data.relationships[ex_ind].copy()
-        gt_boxes = train_data.gt_boxes[ex_ind].copy()
+        gt_classes = train_data.gt_classes[ex_ind%40000].copy()
+        gt_relations = train_data.relationships[ex_ind%40000].copy()
+        gt_boxes = train_data.gt_boxes[ex_ind%40000].copy()
 
         # For the foreground, we'll just look at everything
         o1o2 = gt_classes[gt_relations[:, :2]]
