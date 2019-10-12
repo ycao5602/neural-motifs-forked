@@ -544,7 +544,7 @@ class RelModel(nn.Module):
 
         rel_rep = F.softmax(result.rel_dists, dim=1)
         return filter_dets(bboxes, result.obj_scores,
-                           result.obj_preds, rel_inds[:, 1:], rel_rep),result.obj_fmap
+                           result.obj_preds, rel_inds[:, 1:], rel_rep),result.obj_fmap,result.rm_obj_dists
 
     def __getitem__(self, batch):
         """ Hack to do multi-GPU training"""
