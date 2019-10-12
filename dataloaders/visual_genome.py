@@ -70,7 +70,7 @@ class VG(Dataset):
         self.ind_to_classes, self.ind_to_predicates = load_info(dict_file)
 
         if use_proposals:
-            print("Loading proposals", flush=True)
+            # print("Loading proposals", flush=True)
             p_h5 = h5py.File(PROPOSAL_FN, 'r')
             rpn_rois = p_h5['rpn_rois']
             rpn_scores = p_h5['rpn_scores']
