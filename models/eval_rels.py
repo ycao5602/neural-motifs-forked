@@ -72,7 +72,7 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         # }
         # assert np.all(objs_i[rels_i[:,0]] > 0) and np.all(objs_i[rels_i[:,1]] > 0)
         # # assert np.all(rels_i[:,2] > 0)
-        print(obj_dists.size())
+        # print(obj_dists.size())
         pred_entry = {
             'pred_boxes': boxes_i * BOX_SCALE/IM_SCALE,
             'pred_classes': objs_i,
