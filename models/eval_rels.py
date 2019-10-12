@@ -58,6 +58,7 @@ print('restored')
 
 all_pred_entries = []
 all_batches=[]
+problem=[]
 def val_batch(batch_num, b, thrs=(20, 50, 100)):
     det_res = detector[b]
     if conf.num_gpus == 1:
@@ -104,8 +105,13 @@ else:
         # if val_b>10:
         #     break
         # print('batch.ids',batch.ids )
-        all_batches.extend(batch.ids)
-        val_batch(conf.num_gpus*val_b, batch)
+        try:
+            all_batches.extend(batch.ids)
+            val_batch(conf.num_gpus*val_b, batch)
+        except:
+            problem.extend(batch.ids)
+            print('id ',batch.ids,' went wrong')
+            pass
         if val_b%1000==0 and not val_b==0:
             print('saving for batch: ',val_b)
             predictions = dict(zip(all_batches, all_pred_entries))
@@ -115,3 +121,4 @@ else:
 
     predictions = dict(zip(all_batches, all_pred_entries))
     torch.save(predictions, 'train/img_sg_' + str(val_b) + '.pt')
+    torch.save(problem,'train/problem.pt')
