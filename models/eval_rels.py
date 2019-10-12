@@ -64,7 +64,7 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         det_res = [det_res]
     # print('det res: ',det_res)
 
-    for i, (boxes_i, objs_i, obj_scores_i, rels_i, pred_scores_i) in enumerate(det_res):
+    for i, ((boxes_i, objs_i, obj_scores_i, rels_i, pred_scores_i),features) in enumerate(det_res):
         # gt_entry = {
         #     'gt_classes': val.gt_classes[batch_num + i].copy(),
         #     'gt_relations': val.relationships[batch_num + i].copy(),
@@ -79,6 +79,7 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
             'pred_rel_inds': rels_i,
             'obj_scores': obj_scores_i,
             'rel_scores': pred_scores_i,
+            'img_features':features,
         }
         all_pred_entries.append(pred_entry)
 
