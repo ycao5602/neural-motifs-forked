@@ -115,10 +115,10 @@ else:
         if val_b%1000==0 and not val_b==0:
             print('saving for batch: ',val_b)
             predictions = dict(zip(all_batches, all_pred_entries))
-            torch.save(predictions, 'train/img_sg_'+str(val_b)+'.pt')
+            torch.save(predictions, 'img_sg_val_'+str(val_b)+'.pt')
             all_pred_entries=[]
             all_batches=[]
 
     predictions = dict(zip(all_batches, all_pred_entries))
-    torch.save(predictions, 'train/img_sg_' + str(val_b) + '.pt')
-    torch.save(problem,'train/problem.pt')
+    torch.save(predictions, 'img_sg_val_' + str(val_b) + '.pt')
+    torch.save(problem,'problem.pt')
