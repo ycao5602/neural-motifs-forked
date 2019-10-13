@@ -101,9 +101,9 @@ if conf.cache is not None and os.path.exists(conf.cache):
 else:
     detector.eval()
     for val_b, batch in enumerate(tqdm(val_loader)):
-        # print('val_b',val_b)
-        # if val_b<=24000:
-        #     continue
+        print('val_b',val_b)
+        if val_b>10:
+            break
         print('batch.ids',batch.ids )
         continue
         try:
