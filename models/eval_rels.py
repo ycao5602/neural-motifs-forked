@@ -102,8 +102,8 @@ else:
     detector.eval()
     for val_b, batch in enumerate(tqdm(val_loader)):
         # print('val_b',val_b)
-        # if val_b>10:
-        #     break
+        if val_b<=24000:
+            continue
         # print('batch.ids',batch.ids )
         try:
             all_batches.extend(batch.ids)
