@@ -43,7 +43,6 @@ class VG(Dataset):
         if mode not in ('test', 'train', 'val'):
             raise ValueError("Mode must be in test, train, or val. Supplied {}".format(mode))
         self.mode = mode
-        self.is_train=False
 
         # Initialize
         self.roidb_file = roidb_file
@@ -129,7 +128,8 @@ class VG(Dataset):
 
     @property
     def is_train(self):
-        return self.mode.startswith('train')
+        # return self.mode.startswith('train')
+        return False
 
     @classmethod
     def splits(cls, *args, **kwargs):
