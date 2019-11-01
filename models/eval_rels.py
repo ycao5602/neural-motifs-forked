@@ -105,13 +105,13 @@ else:
         #     break
         # print('batch.ids',batch.ids )
         # continue
-        try:
-            all_batches.extend(batch.ids)
-            val_batch(conf.num_gpus*val_b, batch)
-        except:
-            problem.extend(batch.ids)
-            print('id ',batch.ids,' went wrong')
-            pass
+        # try:
+        all_batches.extend(batch.ids)
+        val_batch(conf.num_gpus*val_b, batch)
+        # except:
+        #     problem.extend(batch.ids)
+        #     print('id ',batch.ids,' went wrong')
+        #     pass
         if val_b%1000==0 and not val_b==0:
             print('saving for batch: ',val_b)
             predictions = dict(zip(all_batches, all_pred_entries))
