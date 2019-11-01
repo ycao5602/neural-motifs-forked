@@ -65,7 +65,7 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         det_res = [det_res]
     # print('det res: ',det_res)
 
-    for i, ((boxes_i, objs_i, obj_scores_i, rels_i, pred_scores_i),features, obj_dists) in enumerate(det_res):
+    for i, ((boxes_i, objs_i, obj_scores_i, rels_i, pred_scores_i),_, obj_dists) in enumerate(det_res):
         # gt_entry = {
         #     'gt_classes': val.gt_classes[batch_num + i].copy(),
         #     'gt_relations': val.relationships[batch_num + i].copy(),
@@ -74,14 +74,13 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         # assert np.all(objs_i[rels_i[:,0]] > 0) and np.all(objs_i[rels_i[:,1]] > 0)
         # # assert np.all(rels_i[:,2] > 0)
         # print(obj_dists.size())
+        print('rels_i',rels_i)
         pred_entry = {
-            'pred_boxes': boxes_i * BOX_SCALE/IM_SCALE,
-            'pred_classes': objs_i,
+            #'pred_boxes': boxes_i * BOX_SCALE/IM_SCALE,
+            #'pred_classes': objs_i,
             'pred_rel_inds': rels_i,
             'obj_scores': obj_scores_i,
             'rel_scores': pred_scores_i,
-            'img_features':features,
-            'obj_dists':obj_dists,
         }
         all_pred_entries.append(pred_entry)
 
@@ -101,11 +100,11 @@ if conf.cache is not None and os.path.exists(conf.cache):
 else:
     detector.eval()
     for val_b, batch in enumerate(tqdm(val_loader)):
-        print('val_b',val_b)
-        if val_b>10:
-            break
-        print('batch.ids',batch.ids )
-        continue
+        # print('val_b',val_b)
+        # if val_b>10:
+        #     break
+        # print('batch.ids',batch.ids )
+        # continue
         try:
             all_batches.extend(batch.ids)
             val_batch(conf.num_gpus*val_b, batch)
