@@ -261,10 +261,10 @@ def load_image_filenames(image_file, image_dir=VG_IMAGES):
         print(filename1)
         print(basename)
         print(img['image_id'])
-        if os.path.exists(filename1) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+img['image_id']+'.pt'):
+        if os.path.exists(filename1) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+str(img['image_id'])+'.pt'):
             print('fns1')
             fns.append(filename1)
-        elif os.path.exists(filename2) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+img['image_id']+'.pt'):
+        elif os.path.exists(filename2) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+str(img['image_id'])+'.pt'):
             print('fns2')
             fns.append(filename1)
     # assert len(fns) == 108073
