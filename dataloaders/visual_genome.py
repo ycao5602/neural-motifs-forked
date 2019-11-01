@@ -436,6 +436,7 @@ def load_image_filenames(image_file,image_dir=VG_IMAGES):
     keep = []
     ind=0
     for i, img in enumerate(im_data):
+        print('img',img)
         basename = str(img['image_id'])
         if basename in corrupted_ims:
             continue
