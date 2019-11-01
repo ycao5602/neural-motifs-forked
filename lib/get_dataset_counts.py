@@ -27,17 +27,25 @@ def get_counts(train_data=VG(mode='train', filter_duplicate_rels=False, num_val_
         train_data.num_classes,
     ), dtype=np.int64)
 
-    for ex_ind in range(len(train_data)):
-        gt_classes = train_data.gt_classes[ex_ind%10000].copy()
-        gt_relations = train_data.relationships[ex_ind%10000].copy()
-        gt_boxes = train_data.gt_boxes[ex_ind%10000].copy()
+    # for ex_ind in range(len(train_data)):
+    for i, data_dict in enumerate(train_data):
+        # gt_classes = data_dict['gt_classes'][:,1].copy()
+        gt_classes = data_dict['gt_classes'].copy()
+        gt_relations =data_dict['gt_relations'].copy()
+        gt_boxes = data_dict['gt_boxes'].copy()
+        # print('gt_classes.size()',gt_classes)
+        # print('gt_relations.size()', gt_relations)
+        # print('gt_boxes.size()', gt_boxes)
 
         # For the foreground, we'll just look at everything
+        # print('gt relations',gt_relations)
         o1o2 = gt_classes[gt_relations[:, :2]]
         for (o1, o2), gtr in zip(o1o2, gt_relations[:,2]):
+            # print(o1,o2,gtr)
             fg_matrix[o1, o2, gtr] += 1
 
         # For the background, get all of the things that overlap.
+        # print(box_filter(gt_boxes, must_overlap=must_overlap))
         o1o2_total = gt_classes[np.array(
             box_filter(gt_boxes, must_overlap=must_overlap), dtype=int)]
         for (o1, o2) in o1o2_total:
