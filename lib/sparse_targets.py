@@ -27,7 +27,7 @@ class FrequencyBias(nn.Module):
         pred_dist = torch.FloatTensor(pred_dist).view(-1, pred_dist.shape[2])
 
         self.obj_baseline = nn.Embedding(51, 22801)
-        self.obj_baseline.weight.data = pred_dist
+        # self.obj_baseline.weight.data = pred_dist
 
     def index_with_labels(self, labels):
         """

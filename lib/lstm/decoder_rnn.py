@@ -54,7 +54,7 @@ class DecoderRNN(torch.nn.Module):
 
         self.classes = classes
         embed_vecs = obj_edge_vectors(['start'] + self.classes, wv_dim=100)
-        self.obj_embed = nn.Embedding(152, embed_dim)
+        self.obj_embed = nn.Embedding(152, 100)
         # self.obj_embed.weight.data = embed_vecs
         self.hidden_size = hidden_dim
         self.inputs_dim = inputs_dim
@@ -171,7 +171,7 @@ class DecoderRNN(torch.nn.Module):
             previous_state = initial_state[0].squeeze(0)
             previous_memory = initial_state[1].squeeze(0)
 
-        previous_embed = self.obj_embed.weight[0, None].expand(batch_size, 200)
+        previous_embed = self.obj_embed.weight[0, None].expand(batch_size, 100)
 
         if self.recurrent_dropout_probability > 0.0:
             dropout_mask = get_dropout_mask(self.recurrent_dropout_probability, previous_memory)
