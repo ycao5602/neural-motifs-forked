@@ -173,10 +173,10 @@ class Blob(object):
             self.train_anchors = self.train_anchors.cuda(self.primary_gpu, async=True)
 
             if self.is_rel:
-                self.gt_rels = self._scatter(self.gt_rels, self.gt_rel_chunks)
+                self.gt_rels = self._scatter(self.gt_rels.contiguous(), self.gt_rel_chunks)
         else:
             if self.is_rel:
-                self.gt_rels = self.gt_rels.cuda(self.primary_gpu, async=True)
+                self.gt_rels = self.gt_rels.contiguous().cuda(self.primary_gpu, async=True)
 
         if self.proposal_chunks is not None:
             self.proposals = self._scatter(self.proposals, self.proposal_chunks)
