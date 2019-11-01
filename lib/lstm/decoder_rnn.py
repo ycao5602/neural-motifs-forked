@@ -171,7 +171,7 @@ class DecoderRNN(torch.nn.Module):
             previous_state = initial_state[0].squeeze(0)
             previous_memory = initial_state[1].squeeze(0)
 
-        previous_embed = self.obj_embed.weight[0, None].expand(batch_size, 100)
+        previous_embed = self.obj_embed.weight[0, None].expand(batch_size, 200)
 
         if self.recurrent_dropout_probability > 0.0:
             dropout_mask = get_dropout_mask(self.recurrent_dropout_probability, previous_memory)
