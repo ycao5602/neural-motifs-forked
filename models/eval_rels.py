@@ -76,6 +76,7 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         # print(obj_dists.size())
         print('rels_i',torch.Tensor(rels_i).size())
         print('pred_scores_i',torch.Tensor(pred_scores_i).size())
+        print('boxes_i', torch.Tensor(boxes_i).size())
         print('boxes_i',boxes_i)
         pred_entry = {
             #'pred_boxes': boxes_i * BOX_SCALE/IM_SCALE,
