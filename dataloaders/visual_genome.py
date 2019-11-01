@@ -48,7 +48,7 @@ class VG(Dataset):
         if mode not in ('test', 'train', 'val'):
             raise ValueError("Mode must be in test, train, or val. Supplied {}".format(mode))
         self.mode = mode
-        # self.mode = 'val'
+        self.mode = 'val'
         print('mode',self.mode)
 
         # Initialize
