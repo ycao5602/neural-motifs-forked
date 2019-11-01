@@ -105,19 +105,21 @@ class VG(Dataset):
         self.ind_to_predicates= {}
         self.ind_to_predicates[0]=self._relations[0]
 
-        # with open(os.path.join(VOCAB_DIR, 'relations_vocab.txt')) as f:
-        #     count = 1
-        #     for rel in f.readlines():
-        #         names = [n.lower().strip() for n in rel.split(',')]
-        #         self._relations.append(names[0])
-        #         for n in names:
-        #             self._relation_to_ind[n] = count
-        #         self.ind_to_predicates[names[0]] = count
-        #         count += 1
+
         with open('/share/yutong/projects/neural-motifs/data/VG-SGG-dicts.json') as f:
             dictionary = json.load(f)['idx_to_predicate']
             for key in dictionary.keys():
                 self._relation_to_ind[dictionary[key]]=int(key)
+
+        with open(os.path.join(VOCAB_DIR, 'relations_vocab.txt')) as f:
+            count = 1
+            for rel in f.readlines():
+                names = [n.lower().strip() for n in rel.split(',')]
+                self._relations.append(names[0])
+                for n in names:
+                    self._relation_to_ind[n] = count
+                self.ind_to_predicates[names[0]] = count
+                count += 1
 
         # print('num relations',len(self.ind_to_predicates))
         self.ind_to_classes = sorted(self.ind_to_classes, key=lambda k: self.ind_to_classes[k])
