@@ -257,6 +257,9 @@ def load_image_filenames(image_file, image_dir=VG_IMAGES):
             continue
 
         filename = os.path.join(image_dir, basename)
+        print(filename)
+        print(basename)
+        print(img['image_id'])
         if os.path.exists(filename) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+img['image_id']+'.pt'):
             fns.append(filename)
     # assert len(fns) == 108073
