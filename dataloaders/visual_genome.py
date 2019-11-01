@@ -82,6 +82,7 @@ class VG(Dataset):
                 for n in names:
                     self._class_to_ind[n] = count
                 self.ind_to_classes[names[0]] = count
+                if count==151: break
                 count += 1
 
         # print('num_classes',len(self.ind_to_classes))
