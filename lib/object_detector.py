@@ -66,6 +66,8 @@ class ObjectDetector(nn.Module):
         if mode not in self.MODES:
             raise ValueError("invalid mode")
         self.mode = mode
+        print(mode)
+        mode = 'gt_box'
 
         self.classes = classes
         self.num_gpus = num_gpus
