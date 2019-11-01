@@ -47,7 +47,7 @@ def get_counts(train_data=VG(mode='train', filter_duplicate_rels=False, num_val_
         # For the background, get all of the things that overlap.
         # print(box_filter(gt_boxes, must_overlap=must_overlap))
         o1o2_total = gt_classes[np.array(
-            box_filter(gt_boxes, must_overlap=must_overlap), dtype=int)]
+            box_filter(gt_boxes, must_overlap=must_overlap), dtype=int)]%152
         for (o1, o2) in o1o2_total:
             bg_matrix[o1, o2] += 1
 
