@@ -74,7 +74,7 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         # assert np.all(objs_i[rels_i[:,0]] > 0) and np.all(objs_i[rels_i[:,1]] > 0)
         # # assert np.all(rels_i[:,2] > 0)
         # print(obj_dists.size())
-        print('rels_i',rels_i.size())
+        print('rels_i',torch.Tensor(rels_i).size())
         print('pred_scores_i',pred_scores_i.size())
         print('boxes_i',boxes_i)
         pred_entry = {
