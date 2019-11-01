@@ -144,7 +144,7 @@ class VG(Dataset):
         # Optionally flip the image if we're doing training
         flipped = self.is_train and np.random.random() > 0.5
         # gt_boxes = self.gt_boxes[index].copy()
-        gt_boxes, _, _, _, _= torch.load(os.path.join(VG_IMAGES, self.filenames[index].split('.')[0].split('/')[-1] + '.pt'))
+        gt_boxes, _, _, _, _= torch.load(os.path.join('/share/yutong/projects/faster-rcnn-full-2/data/vg_features', self.filenames[index].split('.')[0].split('/')[-1] + '.pt'))
 
         # Boxes are already at BOX_SCALE
         if self.is_train:
@@ -261,6 +261,7 @@ def load_image_filenames(image_file, image_dir=VG_IMAGES):
         print(basename)
         print(img['image_id'])
         if os.path.exists(filename) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+img['image_id']+'.pt'):
+            print('fns')
             fns.append(filename)
     # assert len(fns) == 108073
     return fns
