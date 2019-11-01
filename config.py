@@ -34,8 +34,8 @@ COCO_PATH = '/home/rowan/datasets/mscoco'
 
 MODES = ('sgdet', 'sgcls', 'predcls')
 
-BOX_SCALE = 600 #1024  # Scale at which we have the boxes
-IM_SCALE = 600 #592      # Our images will be resized to this res without padding
+BOX_SCALE = 1024  # Scale at which we have the boxes
+IM_SCALE = 592      # Our images will be resized to this res without padding
 
 # Proposal assignments
 BG_THRESH_HI = 0.5
