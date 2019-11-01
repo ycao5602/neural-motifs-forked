@@ -18,7 +18,9 @@ def stanford_path(fn):
 # Update these with where your data is stored ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # VG_IMAGES = DATA_PATH+'/VG_100K_2'
-VG_IMAGES = DATA_PATH+'/val2014'
+GRAPH_DIR = '/share/yutong/projects/neural-motifs/data/xml'
+VG_IMAGES = '/share/yutong/projects/faster-rcnn-full-2/data/vg_features'
+VOCAB_DIR = '/share/yutong/projects/bottom-up-attention/data/genome/1600-400-20/'
 RCNN_CHECKPOINT_FN = path('faster_rcnn_500k.h5')
 
 IM_DATA_FN = path('annotations/captions_val2014.json')
