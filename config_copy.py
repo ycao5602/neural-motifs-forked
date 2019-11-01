@@ -5,8 +5,8 @@ import os
 from argparse import ArgumentParser
 import numpy as np
 
-ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
-DATA_PATH = '/share/yutong/projects/neural-motifs/data'
+ROOT_PATH = '/share/yutong/projects/neural-motifs/'
+DATA_PATH = os.path.join(ROOT_PATH, 'data')
 
 def path(fn):
     return os.path.join(DATA_PATH, fn)
@@ -17,12 +17,13 @@ def stanford_path(fn):
 # =============================================================================
 # Update these with where your data is stored ~~~~~~~~~~~~~~~~~~~~~~~~~
 
+# VG_IMAGES = DATA_PATH+'/VG_100K_2'
 GRAPH_DIR = '/share/yutong/projects/neural-motifs/data/xml'
 VG_IMAGES = '/share/yutong/projects/faster-rcnn-full-2/data/vg_features'
 VOCAB_DIR = '/share/yutong/projects/bottom-up-attention/data/genome/1600-400-20/'
 RCNN_CHECKPOINT_FN = path('faster_rcnn_500k.h5')
 
-IM_DATA_FN = path('image_data.json')
+IM_DATA_FN = path('annotations/captions_val2014.json')
 VG_SGG_FN = path('VG-SGG.h5')
 VG_SGG_DICT_FN = path('VG-SGG-dicts.json')
 PROPOSAL_FN = path('proposals.h5')
@@ -34,8 +35,8 @@ COCO_PATH = '/home/rowan/datasets/mscoco'
 
 MODES = ('sgdet', 'sgcls', 'predcls')
 
-BOX_SCALE = 600 #1024  # Scale at which we have the boxes
-IM_SCALE = 600 #592      # Our images will be resized to this res without padding
+BOX_SCALE = 1024  # Scale at which we have the boxes
+IM_SCALE = 592      # Our images will be resized to this res without padding
 
 # Proposal assignments
 BG_THRESH_HI = 0.5
