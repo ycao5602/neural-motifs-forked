@@ -369,7 +369,7 @@ class VG(Dataset):
             gt_rels = np.array(gt_rels)
 
         entry = {
-            'img': features.cpu(),
+            'img': features,
             'img_size': im_size,
             'gt_boxes': gt_boxes.cpu().numpy(),
             'gt_classes': gt_classes.cpu().numpy().astype(np.int32),
