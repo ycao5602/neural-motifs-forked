@@ -256,13 +256,17 @@ def load_image_filenames(image_file, image_dir=VG_IMAGES):
         if basename in corrupted_ims:
             continue
 
-        filename = os.path.join(image_dir, basename)
-        print(filename)
+        filename1 = os.path.join('/share/yutong/projects/neural-motifs/data/VG_100K', basename)
+        filename2 = os.path.join('/share/yutong/projects/neural-motifs/data/VG_100K_2', basename)
+        print(filename1)
         print(basename)
         print(img['image_id'])
-        if os.path.exists(filename) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+img['image_id']+'.pt'):
-            print('fns')
-            fns.append(filename)
+        if os.path.exists(filename1) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+img['image_id']+'.pt'):
+            print('fns1')
+            fns.append(filename1)
+        elif os.path.exists(filename2) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+img['image_id']+'.pt'):
+            print('fns2')
+            fns.append(filename1)
     # assert len(fns) == 108073
     return fns
 
