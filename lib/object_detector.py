@@ -67,7 +67,7 @@ class ObjectDetector(nn.Module):
             raise ValueError("invalid mode")
         self.mode = mode
         print(mode)
-        mode = 'gt_box'
+        mode = 'gtbox'
 
         self.classes = classes
         self.num_gpus = num_gpus
@@ -301,8 +301,9 @@ class ObjectDetector(nn.Module):
         # Now classify them
         obj_fmap = self.obj_feature_map(fmap, rois)
         od_obj_dists = self.score_fc(obj_fmap)
-        od_box_deltas = self.bbox_fc(obj_fmap).view(
-            -1, len(self.classes), 4) if self.mode != 'gtbox' else None
+        # od_box_deltas = self.bbox_fc(obj_fmap).view(
+        #     -1, len(self.classes), 4) if self.mode != 'gtbox' else None
+        od_box_deltas=None
 
         od_box_priors = rois[:, 1:]
 
