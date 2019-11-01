@@ -54,8 +54,8 @@ class DecoderRNN(torch.nn.Module):
 
         self.classes = classes
         embed_vecs = obj_edge_vectors(['start'] + self.classes, wv_dim=100)
-        self.obj_embed = nn.Embedding(len(self.classes), embed_dim)
-        self.obj_embed.weight.data = embed_vecs
+        self.obj_embed = nn.Embedding(152, embed_dim)
+        # self.obj_embed.weight.data = embed_vecs
         self.hidden_size = hidden_dim
         self.inputs_dim = inputs_dim
         self.nms_thresh = 0.3
@@ -76,7 +76,7 @@ class DecoderRNN(torch.nn.Module):
             self.state_linearity = torch.nn.Linear(self.hidden_size, 4 * self.hidden_size,
                                                    bias=True)
 
-        self.out = nn.Linear(self.hidden_size, len(self.classes))
+        self.out = nn.Linear(self.hidden_size, 151)
         self.reset_parameters()
 
     @property

@@ -99,8 +99,8 @@ class ObjectDetector(nn.Module):
             rpn_input_dim = 1024
             output_dim = 2048
 
-        self.score_fc = nn.Linear(output_dim, self.num_classes)
-        self.bbox_fc = nn.Linear(output_dim, self.num_classes * 4)
+        self.score_fc = nn.Linear(4096, 151)
+        self.bbox_fc = nn.Linear(4096, 604)
         self.rpn_head = RPNHead(dim=512, input_dim=rpn_input_dim)
 
     @property

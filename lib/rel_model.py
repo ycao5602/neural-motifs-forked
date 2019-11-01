@@ -93,11 +93,11 @@ class LinearizedContext(nn.Module):
 
         # EMBEDDINGS
         embed_vecs = obj_edge_vectors(self.classes, wv_dim=self.embed_dim)
-        self.obj_embed = nn.Embedding(self.num_classes, self.embed_dim)
-        self.obj_embed.weight.data = embed_vecs.clone()
+        self.obj_embed = nn.Embedding(151, 200)
+        # self.obj_embed.weight.data = embed_vecs.clone()
 
-        self.obj_embed2 = nn.Embedding(self.num_classes, self.embed_dim)
-        self.obj_embed2.weight.data = embed_vecs.clone()
+        self.obj_embed2 = nn.Embedding(151, 200)
+        # self.obj_embed2.weight.data = embed_vecs.clone()
 
         # This probably doesn't help it much
         self.pos_embed = nn.Sequential(*[
@@ -387,8 +387,8 @@ class RelModel(nn.Module):
             self.post_emb = nn.Embedding(self.num_classes, self.pooling_dim*2)
             self.post_emb.weight.data.normal_(0, math.sqrt(1.0))
 
-        self.rel_compress = nn.Linear(self.pooling_dim, self.num_rels, bias=True)
-        self.rel_compress.weight = torch.nn.init.xavier_normal(self.rel_compress.weight, gain=1.0)
+        self.rel_compress = nn.Linear(self.pooling_dim, 51, bias=True)
+        # self.rel_compress.weight = torch.nn.init.xavier_normal(self.rel_compress.weight, gain=1.0)
         if self.use_bias:
             self.freq_bias = FrequencyBias()
 
