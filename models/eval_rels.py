@@ -74,7 +74,9 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         # assert np.all(objs_i[rels_i[:,0]] > 0) and np.all(objs_i[rels_i[:,1]] > 0)
         # # assert np.all(rels_i[:,2] > 0)
         # print(obj_dists.size())
-        print('rels_i',rels_i)
+        print('rels_i',rels_i.size())
+        print('pred_scores_i',pred_scores_i.size())
+        print('boxes_i',boxes_i)
         pred_entry = {
             #'pred_boxes': boxes_i * BOX_SCALE/IM_SCALE,
             #'pred_classes': objs_i,
@@ -107,6 +109,7 @@ else:
         # continue
         # try:
         all_batches.extend(batch.ids)
+        print('batch.ids',batch.ids)
         val_batch(conf.num_gpus*val_b, batch)
         # except:
         #     problem.extend(batch.ids)
