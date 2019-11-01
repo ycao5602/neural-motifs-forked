@@ -103,6 +103,7 @@ if conf.cache is not None and os.path.exists(conf.cache):
 
 else:
     detector.eval()
+    print('len val',len(val_loader))
     for val_b, batch in enumerate(tqdm(val_loader)):
         # print('val_b',val_b)
         # if val_b>10:
