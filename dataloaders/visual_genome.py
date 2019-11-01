@@ -109,7 +109,7 @@ class VG(Dataset):
         with open('/share/yutong/projects/neural-motifs/data/VG-SGG-dicts.json') as f:
             dictionary = json.load(f)['idx_to_predicate']
             for key in dictionary.keys():
-                self._relation_to_ind[dictionary[key]]=int(key)
+                self.ind_to_predicates[dictionary[key]]=int(key)
 
         with open(os.path.join(VOCAB_DIR, 'relations_vocab.txt')) as f:
             count = 1
