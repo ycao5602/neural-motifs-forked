@@ -43,6 +43,7 @@ class VG(Dataset):
         if mode not in ('test', 'train', 'val'):
             raise ValueError("Mode must be in test, train, or val. Supplied {}".format(mode))
         self.mode = mode
+        self.is_train=False
 
         # Initialize
         self.roidb_file = roidb_file
