@@ -430,7 +430,7 @@ def load_image_filenames(image_file,image_dir=VG_IMAGES):
     with open(image_file, 'r') as f:
         im_data = json.load(f)
 
-    corrupted_ims = ['1592', '1722', '4616', '4617']+torch.load('remove_train.pt')+torch.load('remove_test.pt')+torch.load('remove_val.pt')
+    corrupted_ims = ['1592', '1722', '4616', '4617']+torch.load('/share/yutong/projects/neural-motifs-train-Copy/remove_train.pt')+torch.load('/share/yutong/projects/neural-motifs-train-Copy/remove_test.pt')+torch.load('/share/yutong/projects/neural-motifs-train-Copy/remove_val.pt')
     # print(corrupted_ims)
     fns = []
     keep = []
