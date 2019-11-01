@@ -103,7 +103,7 @@ class VG(Dataset):
         self._relation_to_ind = {}
         self._relation_to_ind[self._relations[0]] = 0
         self.ind_to_predicates= {}
-        self.ind_to_predicates[0]=self._relations[0]
+        self.ind_to_predicates[self._relations[0]]=0
 
 
         with open('/share/yutong/projects/neural-motifs/data/VG-SGG-dicts.json') as f:
