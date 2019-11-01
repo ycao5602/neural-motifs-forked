@@ -13,22 +13,17 @@ from torch.utils.data import Dataset
 from torchvision.transforms import Resize, Compose, ToTensor, Normalize
 from dataloaders.blob import Blob
 from lib.fpn.box_intersections_cpu.bbox import bbox_overlaps
-from config import VG_IMAGES, IM_DATA_FN, VG_SGG_FN, VG_SGG_DICT_FN, BOX_SCALE, \
-    IM_SCALE, PROPOSAL_FN, GRAPH_DIR, VOCAB_DIR, DATA_PATH
+from config import VG_IMAGES, IM_DATA_FN, VG_SGG_FN, VG_SGG_DICT_FN, BOX_SCALE, IM_SCALE, PROPOSAL_FN
 from dataloaders.image_transforms import SquarePad, Grayscale, Brightness, Sharpness, Contrast, \
     RandomOrder, Hue, random_crop
 from collections import defaultdict
 from pycocotools.coco import COCO
-import xml.etree.ElementTree as ET
-import scipy.sparse
-from tqdm import tqdm
-
 
 
 class VG(Dataset):
     def __init__(self, mode, roidb_file=VG_SGG_FN, dict_file=VG_SGG_DICT_FN,
                  image_file=IM_DATA_FN, filter_empty_rels=True, num_im=-1, num_val_im=5000,
-                 filter_duplicate_rels=True, filter_non_overlap=True, #num_im=-1
+                 filter_duplicate_rels=True, filter_non_overlap=True,
                  use_proposals=False):
         """
         Torch dataset for VisualGenome
@@ -48,8 +43,6 @@ class VG(Dataset):
         if mode not in ('test', 'train', 'val'):
             raise ValueError("Mode must be in test, train, or val. Supplied {}".format(mode))
         self.mode = mode
-        self.mode = 'val'
-        print('mode',self.mode)
 
         # Initialize
         self.roidb_file = roidb_file
@@ -58,92 +51,16 @@ class VG(Dataset):
         self.filter_non_overlap = filter_non_overlap
         self.filter_duplicate_rels = filter_duplicate_rels and self.mode == 'train'
 
-        # self.split_mask = load_split(
-        #     self.roidb_file, self.mode, num_im, num_val_im=num_val_im,
-        #     filter_empty_rels=filter_empty_rels,
-        # )
+        self.split_mask, self.gt_boxes, self.gt_classes, self.relationships = load_graphs(
+            self.roidb_file, self.mode, num_im, num_val_im=num_val_im,
+            filter_empty_rels=filter_empty_rels,
+            filter_non_overlap=self.filter_non_overlap and self.is_train,
+        )
 
+        self.filenames = load_image_filenames(image_file)
+        # self.filenames = [self.filenames[i] for i in np.where(self.split_mask)[0]]
 
-        # self.ind_to_classes, self.ind_to_predicates = load_info(dict_file)
-        self.ind_to_classes = {}
-        self.ind_to_predicates= {}
-
-        # Load classes
-        self._classes = ['__background__']
-        self._class_to_ind = {}
-        self._class_to_ind[self._classes[0]] = 0
-        self.ind_to_classes = {}
-        self.ind_to_classes[self._classes[0]] = 0
-        with open(os.path.join(VOCAB_DIR, 'objects_vocab.txt')) as f:
-            count = 1
-            for object in f.readlines():
-                names = [n.lower().strip() for n in object.split(',')]
-                self._classes.append(names[0])
-                for n in names:
-                    self._class_to_ind[n] = count
-                self.ind_to_classes[names[0]] = count
-                if count==151: break
-                count += 1
-
-        # print('num_classes',len(self.ind_to_classes))
-        # Load attributes
-        self._attributes = ['__no_attribute__']
-        self._attribute_to_ind = {}
-        self._attribute_to_ind[self._attributes[0]] = 0
-        with open(os.path.join(VOCAB_DIR, 'attributes_vocab.txt')) as f:
-            count = 1
-            for att in f.readlines():
-                names = [n.lower().strip() for n in att.split(',')]
-                self._attributes.append(names[0])
-                for n in names:
-                    self._attribute_to_ind[n] = count
-                count += 1
-
-        # Load relations
-        self._relations = ['__no_relation__']
-        self._relation_to_ind = {}
-        self._relation_to_ind[self._relations[0]] = 0
-        self.ind_to_predicates= {}
-        self.ind_to_predicates[self._relations[0]]=0
-
-
-        with open('/share/yutong/projects/neural-motifs/data/VG-SGG-dicts.json') as f:
-            dictionary = json.load(f)['idx_to_predicate']
-            for key in dictionary.keys():
-                self.ind_to_predicates[dictionary[key]]=int(key)
-
-        with open(os.path.join(VOCAB_DIR, 'relations_vocab.txt')) as f:
-            count = 1
-            for rel in f.readlines():
-                names = [n.lower().strip() for n in rel.split(',')]
-                self._relations.append(names[0])
-                for n in names:
-                    self._relation_to_ind[n] = count
-                self.ind_to_predicates[names[0]] = count
-                count += 1
-
-        # print('num relations',len(self.ind_to_predicates))
-        self.ind_to_classes = sorted(self.ind_to_classes, key=lambda k: self.ind_to_classes[k])
-        self.ind_to_predicates = sorted(self.ind_to_predicates, key=lambda k: self.ind_to_predicates[k])
-
-        self.filenames, keep = load_image_filenames(image_file)
-
-        # self.roidb_file, self.mode, num_im, num_val_im = num_val_im,
-        #     filter_empty_rels=filter_empty_rels,
-
-        self.split_mask = \
-            load_graphs(keep, self.roidb_file, self.filenames, self.num_classes,
-                        self._class_to_ind, self._relation_to_ind, self._attribute_to_ind,
-                        filter_empty_rels=filter_empty_rels, filter_non_overlap=filter_non_overlap,
-                        mode =self.mode, num_im=num_im, num_val_im = num_val_im)
-        self.split_mask=self.split_mask[keep]
-        # self.split_mask = self.split_mask[:len(self.filenames)]
-        # print('filename num', len(self.filenames))
-        # print('split num', len(self.split_mask))
-        self.filenames = [self.filenames[i] for i in np.where(self.split_mask)[0]]
-
-        # graphs_file, filenames, num_classes, _class_to_ind, _relation_to_ind, _attribute_to_ind,
-        #                 filter_empty_rels=True, filter_non_overlap=False , mode='train', num_im=-1, num_val_im=0
+        self.ind_to_classes, self.ind_to_predicates = load_info(dict_file)
 
         if use_proposals:
             print("Loading proposals", flush=True)
@@ -221,140 +138,34 @@ class VG(Dataset):
         test = cls('test', *args, **kwargs)
         return train, val, test
 
-    @classmethod
-    def load_vg_annotation(self, filename):
-        """
-        Load image and bounding boxes info from XML file in the PASCAL VOC
-        format.
-        """
-        #************************
-        width, height = self._get_size(index)
-        #************************
-        tree = ET.parse(os.path.join(GRAPH_DIR,filename+'.xml'))
-        objs = tree.findall('object')
-        num_objs = len(objs)
-
-        boxes = np.zeros((num_objs, 4), dtype=np.uint16)
-        gt_classes = np.zeros((num_objs), dtype=np.int32)
-        # Max of 16 attributes are observed in the data
-        gt_attributes = np.zeros((num_objs, 16), dtype=np.int32)
-        overlaps = np.zeros((num_objs, self.num_classes), dtype=np.float32)
-        # "Seg" area for pascal is just the box area
-        seg_areas = np.zeros((num_objs), dtype=np.float32)
-
-        # Load object bounding boxes into a data frame.
-        obj_dict = {}
-        ix = 0
-        for obj in objs:
-            obj_name = obj.find('name').text.lower().strip()
-            if obj_name in self._class_to_ind:
-                bbox = obj.find('bndbox')
-                x1 = max(0, float(bbox.find('xmin').text))
-                y1 = max(0, float(bbox.find('ymin').text))
-                x2 = min(width - 1, float(bbox.find('xmax').text))
-                y2 = min(height - 1, float(bbox.find('ymax').text))
-                # If bboxes are not positive, just give whole image coords (there are a few examples)
-                if x2 < x1 or y2 < y1:
-                    print('Failed bbox in %s, object %s' % (filename, obj_name))
-                    x1 = 0
-                    y1 = 0
-                    x2 = width - 1
-                    y2 = width - 1
-                cls = self._class_to_ind[obj_name]
-                obj_dict[obj.find('object_id').text] = ix
-                atts = obj.findall('attribute')
-                n = 0
-                for att in atts:
-                    att = att.text.lower().strip()
-                    if att in self._attribute_to_ind:
-                        gt_attributes[ix, n] = self._attribute_to_ind[att]
-                        n += 1
-                    if n >= 16:
-                        break
-                boxes[ix, :] = [x1, y1, x2, y2]
-                gt_classes[ix] = cls
-                overlaps[ix, cls] = 1.0
-                seg_areas[ix] = (x2 - x1 + 1) * (y2 - y1 + 1)
-                ix += 1
-        # clip gt_classes and gt_relations
-        gt_classes = gt_classes[:ix]
-        gt_attributes = gt_attributes[:ix, :]
-
-        overlaps = scipy.sparse.csr_matrix(overlaps)
-        gt_attributes = scipy.sparse.csr_matrix(gt_attributes)
-
-        rels = tree.findall('relation')
-        num_rels = len(rels)
-        gt_relations = set()  # Avoid duplicates
-        for rel in rels:
-            pred = rel.find('predicate').text
-            if pred:  # One is empty
-                pred = pred.lower().strip()
-                if pred in self._relation_to_ind:
-                    try:
-                        triple = []
-                        triple.append(obj_dict[rel.find('subject_id').text])
-                        triple.append(self._relation_to_ind[pred])
-                        triple.append(obj_dict[rel.find('object_id').text])
-                        gt_relations.add(tuple(triple))
-                    except:
-                        pass  # Object not in dictionary
-        gt_relations = np.array(list(gt_relations), dtype=np.int32)
-
-        return {'boxes': boxes,
-                'gt_classes': gt_classes,
-                'gt_attributes': gt_attributes,
-                'gt_relations': gt_relations,
-                'gt_overlaps': overlaps,
-                'width': width,
-                'height': height,
-                'flipped': False,
-                'seg_areas': seg_areas}
-
     def __getitem__(self, index):
-        # annotation = self.load_vg_annotation(self.filenames[index])
+        image_unpadded = Image.open(self.filenames[index]).convert('RGB')
 
         # Optionally flip the image if we're doing training
-        # flipped = self.is_train and np.random.random() > 0.5
-        # print('mode',self.mode)
-        # print(self.filenames[index])
-        filename = self.filenames[index]
-        gt_boxes, gt_classes, _, gt_rels, gt_attrs = torch.load(os.path.join(VG_IMAGES,filename+'.pt'))
-        path1 = os.path.join(DATA_PATH, 'VG_100K', filename + '.jpg')
-        path2 = os.path.join(DATA_PATH, 'VG_100K_2', filename + '.jpg')
-        if os.path.exists(path1):
-            features = Image.open(path1)
-            w,h = features.size
-            features = features.convert('RGB')
-        elif os.path.exists(path2):
-            features = Image.open(path2)
-            w, h = features.size
-            features = features.convert('RGB')
-        else:
-            raise ValueError('Cannot find the image.')
-        gt_rels = gt_rels[0].cpu().numpy()
-        gt_rels = gt_rels[:,[0,2,1]]
-        # gt_classes = torch.cat(((torch.zeros_like(gt_classes)+index).unsqueeze(1),gt_classes.unsqueeze(1)),dim=1)
+        flipped = self.is_train and np.random.random() > 0.5
         # gt_boxes = self.gt_boxes[index].copy()
-        # print(gt_boxes)
+        gt_boxes, _, _, _, _= torch.load(os.path.join(VG_IMAGES, self.filenames[index].split('.')[0].split('/')[-1] + '.pt'))
+
         # Boxes are already at BOX_SCALE
-        # if self.is_train:
-        #     # crop boxes that are too large. This seems to be only a problem for image heights, but whatevs
-        #     gt_boxes[:, [1, 3]] = gt_boxes[:, [1, 3]].clip(
-        #         None, BOX_SCALE / max(image_unpadded.size) * image_unpadded.size[1])
-        #     gt_boxes[:, [0, 2]] = gt_boxes[:, [0, 2]].clip(
-        #         None, BOX_SCALE / max(image_unpadded.size) * image_unpadded.size[0])
+        if self.is_train:
+            # crop boxes that are too large. This seems to be only a problem for image heights, but whatevs
+            gt_boxes[:, [1, 3]] = gt_boxes[:, [1, 3]].clip(
+                None, BOX_SCALE / max(image_unpadded.size) * image_unpadded.size[1])
+            gt_boxes[:, [0, 2]] = gt_boxes[:, [0, 2]].clip(
+                None, BOX_SCALE / max(image_unpadded.size) * image_unpadded.size[0])
 
             # # crop the image for data augmentation
             # image_unpadded, gt_boxes = random_crop(image_unpadded, gt_boxes, BOX_SCALE, round_boxes=True)
 
-        # box_scale_factor = BOX_SCALE / max(w, h)
+        w, h = image_unpadded.size
+        box_scale_factor = BOX_SCALE / max(w, h)
+        img_scale_factor = IM_SCALE / max(w, h)
 
-        # if flipped:
-        #     scaled_w = int(box_scale_factor * float(w))
-        #     # print("Scaled w is {}".format(scaled_w))
-        #     image_unpadded = image_unpadded.transpose(Image.FLIP_LEFT_RIGHT)
-        #     gt_boxes[:, [0, 2]] = scaled_w - gt_boxes[:, [2, 0]]
+        if flipped:
+            scaled_w = int(box_scale_factor * float(w))
+            # print("Scaled w is {}".format(scaled_w))
+            image_unpadded = image_unpadded.transpose(Image.FLIP_LEFT_RIGHT)
+            gt_boxes[:, [0, 2]] = scaled_w - gt_boxes[:, [2, 0]]
 
         img_scale_factor = IM_SCALE / max(w, h)
         if h > w:
@@ -364,8 +175,7 @@ class VG(Dataset):
         else:
             im_size = (IM_SCALE, IM_SCALE, img_scale_factor)
 
-        # gt_rels = self.relationships[index].copy()
-
+        gt_rels = self.relationships[index].copy()
         if self.filter_duplicate_rels:
             # Filter out dupes!
             assert self.mode == 'train'
@@ -377,15 +187,15 @@ class VG(Dataset):
             gt_rels = np.array(gt_rels)
 
         entry = {
-            'img': self.transform_pipeline(features),
+            'img': self.transform_pipeline(image_unpadded),
             'img_size': im_size,
-            'gt_boxes': gt_boxes.cpu().numpy(),
-            'gt_classes': gt_classes.cpu().numpy().astype(np.int32),
-            'gt_relations': gt_rels.astype(np.int32),
+            'gt_boxes': gt_boxes,
+            'gt_classes': self.gt_classes[index].copy(),
+            'gt_relations': gt_rels,
             'scale': img_scale_factor,  # Multiply the boxes by this.
             'index': index,
-            'flipped': False,
-            'fn': self.filenames[index],
+            'flipped': flipped,
+            'fn': self.filenames[index]
         }
 
         if self.rpn_rois is not None:
@@ -410,14 +220,15 @@ class VG(Dataset):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # MISC. HELPER FUNCTIONS ~~~~~~~~~~~~~~~~~~~~~
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 def assertion_checks(entry):
-    # im_size = tuple(entry['img'].size())
-    # if len(im_size) != 3:
-    #     raise ValueError("Img must be dim-3")
-    #
-    # c, h, w = entry['img'].size()
-    # if c != 3:
-    #     raise ValueError("Must have 3 color channels")
+    im_size = tuple(entry['img'].size())
+    if len(im_size) != 3:
+        raise ValueError("Img must be dim-3")
+
+    c, h, w = entry['img'].size()
+    if c != 3:
+        raise ValueError("Must have 3 color channels")
 
     num_gt = entry['gt_boxes'].shape[0]
     if entry['gt_classes'].shape[0] != num_gt:
@@ -427,7 +238,7 @@ def assertion_checks(entry):
     assert (entry['gt_boxes'] >= -1).all()
 
 
-def load_image_filenames(image_file,image_dir=VG_IMAGES):
+def load_image_filenames(image_file, image_dir=VG_IMAGES):
     """
     Loads the image filenames from visual genome from the JSON file that contains them.
     This matches the preprocessing in scene-graph-TF-release/data_tools/vg_to_imdb.py.
@@ -438,32 +249,22 @@ def load_image_filenames(image_file,image_dir=VG_IMAGES):
     with open(image_file, 'r') as f:
         im_data = json.load(f)
 
-    corrupted_ims = ['1592', '1722', '4616', '4617']+torch.load('/share/yutong/projects/neural-motifs-train-Copy/remove_train.pt')+torch.load('/share/yutong/projects/neural-motifs-train-Copy/remove_test.pt')+torch.load('/share/yutong/projects/neural-motifs-train-Copy/remove_val.pt')
-    # print(corrupted_ims)
+    corrupted_ims = ['1592.jpg', '1722.jpg', '4616.jpg', '4617.jpg']
     fns = []
-    keep = []
-    ind=0
     for i, img in enumerate(im_data):
-        # print('img',img)
-        basename = str(img['image_id'])
+        basename = '{}.jpg'.format(img['image_id'])
         if basename in corrupted_ims:
             continue
 
         filename = os.path.join(image_dir, basename)
-        filename_annotation = os.path.join(GRAPH_DIR, basename)
-        if os.path.exists(filename+'.pt') and os.path.exists(filename_annotation+'.xml'):
-            # print('filename',filename)
-            fns.append(filename.split('/')[-1])
-            keep.append(ind)
-        ind+=1
-    # print('im data',len(im_data))
-    # print('fns',len(fns),'keep',len(keep))
+        if os.path.exists(filename) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+img['image_id']+'.pt'):
+            fns.append(filename)
     # assert len(fns) == 108073
-    return fns, keep
+    return fns
 
 
-def load_graphs(keep, graphs_file, filenames, num_classes, _class_to_ind, _relation_to_ind, _attribute_to_ind,
-                filter_empty_rels=True, filter_non_overlap=False ,  mode='train', num_im=-1, num_val_im=0):
+def load_graphs(graphs_file, mode='train', num_im=-1, num_val_im=0, filter_empty_rels=True,
+                filter_non_overlap=False):
     """
     Load the file containing the GT boxes and relations, as well as the dataset split
     :param graphs_file: HDF5
@@ -473,58 +274,10 @@ def load_graphs(keep, graphs_file, filenames, num_classes, _class_to_ind, _relat
     :param filter_empty_rels: (will be filtered otherwise.)
     :param filter_non_overlap: If training, filter images that dont overlap.
     :return: image_index: numpy array corresponding to the index of images we're using
-             boxes: List where each element is a [num_gt, 4] array of ground
+             boxes: List where each element is a [num_gt, 4] array of ground 
                     truth boxes (x1, y1, x2, y2)
              gt_classes: List where each element is a [num_gt] array of classes
-             relationships: List where each element is a [num_r, 3] array of
-                    (box_ind_1, box_ind_2, predicate) relationships
-    """
-    # ************************
-    if mode not in ('train', 'val', 'test'):
-        raise ValueError('{} invalid'.format(mode))
-
-    roi_h5 = h5py.File(graphs_file, 'r')
-    data_split = roi_h5['split'][:]
-    split = 2 if mode == 'test' else 0
-    split_mask = data_split == split
-    split_mask = split_mask[keep]
-    #
-    # # Filter out images without bounding boxes
-    # split_mask &= roi_h5['img_to_first_box'][:] >= 0
-    # if filter_empty_rels:
-    #     split_mask &= roi_h5['img_to_first_rel'][:] >= 0
-    # split_mask = split_mask[:len(filenames)]
-    image_index = np.where(split_mask)[0]
-    if num_im > -1:
-        image_index = image_index[:num_im]
-    if num_val_im > 0:
-        if mode == 'val':
-            image_index = image_index[:num_val_im]
-        elif mode == 'train':
-            image_index = image_index[num_val_im:]
-
-
-    split_mask = np.zeros_like(data_split).astype(bool)
-    split_mask[image_index] = True
-    # ************************
-
-    # torch.save(remove,'remove_'+mode+'.pt')
-    return split_mask
-
-def load_split(graphs_file, mode='train', num_im=-1, num_val_im=0, filter_empty_rels=True):
-    """
-    Load the file containing the GT boxes and relations, as well as the dataset split
-    :param graphs_file: HDF5
-    :param mode: (train, val, or test)
-    :param num_im: Number of images we want
-    :param num_val_im: Number of validation images
-    :param filter_empty_rels: (will be filtered otherwise.)
-    :param filter_non_overlap: If training, filter images that dont overlap.
-    :return: image_index: numpy array corresponding to the index of images we're using
-             boxes: List where each element is a [num_gt, 4] array of ground
-                    truth boxes (x1, y1, x2, y2)
-             gt_classes: List where each element is a [num_gt] array of classes
-             relationships: List where each element is a [num_r, 3] array of
+             relationships: List where each element is a [num_r, 3] array of 
                     (box_ind_1, box_ind_2, predicate) relationships
     """
     if mode not in ('train', 'val', 'test'):
@@ -553,8 +306,62 @@ def load_split(graphs_file, mode='train', num_im=-1, num_val_im=0, filter_empty_
     split_mask = np.zeros_like(data_split).astype(bool)
     split_mask[image_index] = True
 
+    # Get box information
+    all_labels = roi_h5['labels'][:, 0]
+    all_boxes = roi_h5['boxes_{}'.format(BOX_SCALE)][:]  # will index later
+    assert np.all(all_boxes[:, :2] >= 0)  # sanity check
+    assert np.all(all_boxes[:, 2:] > 0)  # no empty box
 
-    return split_mask
+    # convert from xc, yc, w, h to x1, y1, x2, y2
+    all_boxes[:, :2] = all_boxes[:, :2] - all_boxes[:, 2:] / 2
+    all_boxes[:, 2:] = all_boxes[:, :2] + all_boxes[:, 2:]
+
+    im_to_first_box = roi_h5['img_to_first_box'][split_mask]
+    im_to_last_box = roi_h5['img_to_last_box'][split_mask]
+    im_to_first_rel = roi_h5['img_to_first_rel'][split_mask]
+    im_to_last_rel = roi_h5['img_to_last_rel'][split_mask]
+
+    # load relation labels
+    _relations = roi_h5['relationships'][:]
+    _relation_predicates = roi_h5['predicates'][:, 0]
+    assert (im_to_first_rel.shape[0] == im_to_last_rel.shape[0])
+    assert (_relations.shape[0] == _relation_predicates.shape[0])  # sanity check
+
+    # Get everything by image.
+    boxes = []
+    gt_classes = []
+    relationships = []
+    for i in range(len(image_index)):
+        boxes_i = all_boxes[im_to_first_box[i]:im_to_last_box[i] + 1, :]
+        gt_classes_i = all_labels[im_to_first_box[i]:im_to_last_box[i] + 1]
+
+        if im_to_first_rel[i] >= 0:
+            predicates = _relation_predicates[im_to_first_rel[i]:im_to_last_rel[i] + 1]
+            obj_idx = _relations[im_to_first_rel[i]:im_to_last_rel[i] + 1] - im_to_first_box[i]
+            assert np.all(obj_idx >= 0)
+            assert np.all(obj_idx < boxes_i.shape[0])
+            rels = np.column_stack((obj_idx, predicates))
+        else:
+            assert not filter_empty_rels
+            rels = np.zeros((0, 3), dtype=np.int32)
+
+        if filter_non_overlap:
+            assert mode == 'train'
+            inters = bbox_overlaps(boxes_i, boxes_i)
+            rel_overs = inters[rels[:, 0], rels[:, 1]]
+            inc = np.where(rel_overs > 0.0)[0]
+
+            if inc.size > 0:
+                rels = rels[inc]
+            else:
+                split_mask[image_index[i]] = 0
+                continue
+
+        boxes.append(boxes_i)
+        gt_classes.append(gt_classes_i)
+        relationships.append(rels)
+
+    return split_mask, boxes, gt_classes, relationships
 
 
 def load_info(info_file):
