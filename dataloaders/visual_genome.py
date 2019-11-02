@@ -148,8 +148,9 @@ class VG(Dataset):
         if self.mode == 'test': self.mode='dev'
         # gt_boxes = self.gt_boxes[index].copy()
         # gt_boxes, _, _, _, _= torch.load(os.path.join('/share/yutong/projects/faster-rcnn-full-2/data/vg_features', self.filenames[index].split('.')[0].split('/')[-1] + '.pt'))
-        gt_boxes, _, _, _, _ = torch.load(os.path.join('/share/yutong/projects/faster-rcnn-full/'+self.mode,
+        gt_boxes = torch.load(os.path.join('/share/yutong/projects/faster-rcnn-full/'+self.mode,
                                                        self.filenames[index].split('.')[0].split('/')[-1] + '.pt'))
+        gt_boxes = gt_boxes[:,:4]
 
         gt_boxes = gt_boxes.cpu().numpy()
         # Boxes are already at BOX_SCALE
