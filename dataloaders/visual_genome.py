@@ -52,12 +52,12 @@ class VG(Dataset):
         image_file = '/share/yutong/projects/scan-master/data/coco_precomp/'+mode+'_ids.txt'
         self.filter_non_overlap = filter_non_overlap
         self.filter_duplicate_rels = filter_duplicate_rels and self.mode == 'train'
-
-        self.split_mask, self.gt_boxes, self.gt_classes, self.relationships = load_graphs(
-            self.roidb_file, self.mode, num_im, num_val_im=num_val_im,
-            filter_empty_rels=filter_empty_rels,
-            filter_non_overlap=self.filter_non_overlap and self.is_train,
-        )
+        #
+        # self.split_mask, self.gt_boxes, self.gt_classes, self.relationships = load_graphs(
+        #     self.roidb_file, self.mode, num_im, num_val_im=num_val_im,
+        #     filter_empty_rels=filter_empty_rels,
+        #     filter_non_overlap=self.filter_non_overlap and self.is_train,
+        # )
 
         self.filenames = load_image_filenames(image_file)
         # self.filenames = [self.filenames[i] for i in np.where(self.split_mask)[0]]
