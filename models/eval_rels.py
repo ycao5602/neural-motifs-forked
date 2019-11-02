@@ -86,7 +86,7 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         # }
         triplets = np.concatenate((rels_i,pred_scores_i),-1)
         triplets = triplets[np.nonzero(pred_scores_i)]
-        print('triplets')
+        # print('triplets')
         torch.save(triplets,'/share/yutong/projects/faster-rcnn-full/rel_train/'+str(batch_num)+'.pt')
         # all_pred_entries.append(pred_entry)
 
@@ -114,7 +114,7 @@ else:
         # continue
         # try:
         all_batches.extend(batch.ids)
-        print('batch.ids',batch.ids)
+        # print('batch.ids',batch.ids)
         val_batch(conf.num_gpus*val_b, batch)
         # except:
         #     problem.extend(batch.ids)
