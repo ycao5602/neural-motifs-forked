@@ -262,6 +262,8 @@ def load_image_filenames(image_file, image_dir=VG_IMAGES):
                 filename1 = os.path.join('/share/yutong/projects/neural-motifs/data/val2014','COCO_val2014_'+line.strip().zfill(12)+'.jpg')
                 filename2 = os.path.join('/share/yutong/projects/neural-motifs/data/train2014',
                                          'COCO_train2014_' + line.strip().zfill(12)+'.jpg')
+                print(filename1)
+                print(filename2)
                 if os.path.exists(filename1):
                     fns.append(filename1)
                 elif os.path.exists(filename2):
