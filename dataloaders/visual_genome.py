@@ -441,7 +441,7 @@ class VGDataLoader(torch.utils.data.DataLoader):
         train_load = cls(
             dataset=train_data,
             batch_size=batch_size * num_gpus,
-            shuffle=True,
+            shuffle=False,
             num_workers=num_workers,
             collate_fn=lambda x: vg_collate(x, mode=mode, num_gpus=num_gpus, is_train=True),
             drop_last=True,
