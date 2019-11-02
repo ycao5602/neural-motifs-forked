@@ -176,7 +176,7 @@ class VG(Dataset):
         else:
             im_size = (IM_SCALE, IM_SCALE, img_scale_factor)
 
-        gt_rels = np.array([[0,0,1],[0,0,1]])#self.relationships[index].copy()
+        gt_rels = np.array([[0,0,0],[0,0,0]])#self.relationships[index].copy()
         if self.filter_duplicate_rels:
             # Filter out dupes!
             assert self.mode == 'train'
