@@ -65,7 +65,7 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         det_res = [det_res]
     # print('det res: ',det_res)
 
-    for i, ((boxes_i, objs_i, obj_scores_i, rels_i, pred_scores_i),_, obj_dists) in enumerate(det_res):
+    for i, ((_, _, _, rels_i, pred_scores_i),_,_) in enumerate(det_res):
         # gt_entry = {
         #     'gt_classes': val.gt_classes[batch_num + i].copy(),
         #     'gt_relations': val.relationships[batch_num + i].copy(),
@@ -74,19 +74,20 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         # assert np.all(objs_i[rels_i[:,0]] > 0) and np.all(objs_i[rels_i[:,1]] > 0)
         # # assert np.all(rels_i[:,2] > 0)
         # print(obj_dists.size())
-        print('rels_i',torch.Tensor(rels_i).size())
-        print('pred_scores_i',torch.max(torch.Tensor(pred_scores_i), 1)[1])
-        print('pred_scores_i size', torch.Tensor(pred_scores_i))
-        print('boxes_i', torch.Tensor(boxes_i).size())
-        print('boxes_i',boxes_i)
-        pred_entry = {
-            #'pred_boxes': boxes_i * BOX_SCALE/IM_SCALE,
-            #'pred_classes': objs_i,
-            'pred_rel_inds': rels_i,
-            'obj_scores': obj_scores_i,
-            'rel_scores': pred_scores_i,
-        }
-        all_pred_entries.append(pred_entry)
+        # print('rels_i',torch.Tensor(rels_i).size())
+        # print('pred_scores_i',torch.max(torch.Tensor(pred_scores_i), 1)[1])
+        # print('pred_scores_i size', torch.Tensor(pred_scores_i))
+        # pred_entry = {
+        #     #'pred_boxes': boxes_i * BOX_SCALE/IM_SCALE,
+        #     #'pred_classes': objs_i,
+        #     'pred_rel_inds': rels_i,
+        #     # 'obj_scores': obj_scores_i,
+        #     'rel_scores': pred_scores_i,
+        # }
+        triplets = torch.cat((rels_i.long(),pred_scores_i.unsqueeze(-1)),-1)
+        triplets = triplets[torch.nonzero(pred_scores_i)]
+        torch.save(triplets,'/share/yutong/projects/faster-rcnn-full/rel_train/'+str(batch_num)+'.pt')
+        # all_pred_entries.append(pred_entry)
 
 
 # evaluator = BasicSceneGraphEvaluator.all_modes(multiple_preds=conf.multi_pred)
@@ -103,7 +104,7 @@ if conf.cache is not None and os.path.exists(conf.cache):
 
 else:
     detector.eval()
-    print('len val',len(val_loader))
+    # print('len val',len(val_loader))
     for val_b, batch in enumerate(tqdm(val_loader)):
         # print('val_b',val_b)
         # if val_b>10:
@@ -118,13 +119,13 @@ else:
         #     problem.extend(batch.ids)
         #     print('id ',batch.ids,' went wrong')
         #     pass
-        if val_b%1000==0 and not val_b==0:
-            print('saving for batch: ',val_b)
-            predictions = dict(zip(all_batches, all_pred_entries))
-            torch.save(predictions, 'img_sg_val_'+str(val_b)+'.pt')
-            all_pred_entries=[]
-            all_batches=[]
+        # if val_b%1000==0 and not val_b==0:
+        #     print('saving for batch: ',val_b)
+        #     predictions = dict(zip(all_batches, all_pred_entries))
+        #     torch.save(predictions, 'img_sg_val_'+str(val_b)+'.pt')
+        #     all_pred_entries=[]
+        #     all_batches=[]
 
-    predictions = dict(zip(all_batches, all_pred_entries))
+    # predictions = dict(zip(all_batches, all_pred_entries))
     # torch.save(predictions, 'img_sg_val_' + str(val_b) + '.pt')
     # torch.save(problem,'problem.pt')
