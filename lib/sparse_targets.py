@@ -16,15 +16,15 @@ class FrequencyBias(nn.Module):
 
     def __init__(self, eps=1e-3):
         super(FrequencyBias, self).__init__()
+        #
+        # fg_matrix, bg_matrix = get_counts(must_overlap=True)
+        # bg_matrix += 1
+        # fg_matrix[:, :, 0] = bg_matrix
+        #
+        # pred_dist = np.log(fg_matrix / fg_matrix.sum(2)[:, :, None] + eps)
 
-        fg_matrix, bg_matrix = get_counts(must_overlap=True)
-        bg_matrix += 1
-        fg_matrix[:, :, 0] = bg_matrix
-
-        pred_dist = np.log(fg_matrix / fg_matrix.sum(2)[:, :, None] + eps)
-
-        self.num_objs = pred_dist.shape[0]
-        pred_dist = torch.FloatTensor(pred_dist).view(-1, pred_dist.shape[2])
+        self.num_objs = 151#pred_dist.shape[0]
+        # pred_dist = torch.FloatTensor(pred_dist).view(-1, pred_dist.shape[2])
 
         self.obj_baseline = nn.Embedding(22801, 51)
         # self.obj_baseline.weight.data = pred_dist
