@@ -39,17 +39,17 @@ def get_counts(train_data=VG(mode='train', filter_duplicate_rels=False, num_val_
 
         # For the foreground, we'll just look at everything
         # print('gt relations',gt_relations)
-        o1o2 = gt_classes[gt_relations[:, :2]]%152
-        for (o1, o2), gtr in zip(o1o2, gt_relations[:,2]):
-            # print(o1,o2,gtr)
-            fg_matrix[o1, o2, gtr] += 1
-
-        # For the background, get all of the things that overlap.
-        # print(box_filter(gt_boxes, must_overlap=must_overlap))
-        o1o2_total = gt_classes[np.array(
-            box_filter(gt_boxes, must_overlap=must_overlap), dtype=int)]%152
-        for (o1, o2) in o1o2_total:
-            bg_matrix[o1, o2] += 1
+        # o1o2 = gt_classes[gt_relations[:, :2]]
+        # for (o1, o2), gtr in zip(o1o2, gt_relations[:,2]):
+        #     # print(o1,o2,gtr)
+        #     fg_matrix[o1, o2, gtr] += 1
+        #
+        # # For the background, get all of the things that overlap.
+        # # print(box_filter(gt_boxes, must_overlap=must_overlap))
+        # o1o2_total = gt_classes[np.array(
+        #     box_filter(gt_boxes, must_overlap=must_overlap), dtype=int)]%152
+        # for (o1, o2) in o1o2_total:
+        #     bg_matrix[o1, o2] += 1
 
     return fg_matrix, bg_matrix
 
