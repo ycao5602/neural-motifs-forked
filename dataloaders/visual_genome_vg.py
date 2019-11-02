@@ -47,8 +47,7 @@ class VG(Dataset):
         # Initialize
         self.roidb_file = roidb_file
         self.dict_file = dict_file
-        if mode=='val': mode ='dev'
-        self.image_file = '/share/yutong/projects/scan-master/data/coco_precomp/'+mode+'_ids.txt'
+        self.image_file = image_file
         self.filter_non_overlap = filter_non_overlap
         self.filter_duplicate_rels = filter_duplicate_rels and self.mode == 'train'
 
@@ -145,12 +144,8 @@ class VG(Dataset):
 
         # Optionally flip the image if we're doing training
         flipped = self.is_train and np.random.random() > 0.5
-        if self.mode == 'test': self.mode='dev'
         # gt_boxes = self.gt_boxes[index].copy()
-        # gt_boxes, _, _, _, _= torch.load(os.path.join('/share/yutong/projects/faster-rcnn-full-2/data/vg_features', self.filenames[index].split('.')[0].split('/')[-1] + '.pt'))
-        gt_boxes, _, _, _, _ = torch.load(os.path.join('/share/yutong/projects/faster-rcnn-full/'+self.mode,
-                                                       self.filenames[index].split('.')[0].split('/')[-1] + '.pt'))
-
+        gt_boxes, _, _, _, _= torch.load(os.path.join('/share/yutong/projects/faster-rcnn-full-2/data/vg_features', self.filenames[index].split('.')[0].split('/')[-1] + '.pt'))
         gt_boxes = gt_boxes.cpu().numpy()
         # Boxes are already at BOX_SCALE
         if self.is_train:
@@ -252,47 +247,29 @@ def load_image_filenames(image_file, image_dir=VG_IMAGES):
     :param image_dir: directory where the VisualGenome images are located
     :return: List of filenames corresponding to the good images
     """
-    ind = []
+    with open(image_file, 'r') as f:
+        im_data = json.load(f)
+
+    corrupted_ims = ['1592.jpg', '1722.jpg', '4616.jpg', '4617.jpg']
     fns = []
-    with open(image_file) as f:
-        for line in f:
-            if not line.strip() in ind:
-                ind.append(line.strip())
-                filename1 = os.path.join('/share/yutong/projects/neural-motifs/data/val2014','COCO_val2014_'+line.strip().zfill(12)+'.jpg')
-                filename2 = os.path.join('/share/yutong/projects/neural-motifs/data/train2014',
-                                         'COCO_train2014_' + line.strip().zfill(12)+'.jpg')
-                if os.path.exists(filename1):
-                    fns.append(filename1)
-                elif os.path.exists(filename2):
-                    fns.append(filename2)
-                else:
-                    raise('id cannot be found')
+    for i, img in enumerate(im_data):
+        basename = '{}.jpg'.format(img['image_id'])
+        if basename in corrupted_ims:
+            continue
+
+        filename1 = os.path.join('/share/yutong/projects/neural-motifs/data/VG_100K', basename)
+        filename2 = os.path.join('/share/yutong/projects/neural-motifs/data/VG_100K_2', basename)
+        print(filename1)
+        print(basename)
+        print(img['image_id'])
+        if os.path.exists(filename1) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+str(img['image_id'])+'.pt'):
+            print('fns1')
+            fns.append(filename1)
+        elif os.path.exists(filename2) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+str(img['image_id'])+'.pt'):
+            print('fns2')
+            fns.append(filename2)
+    # assert len(fns) == 108073
     return fns
-    # #####################################
-    #
-    # with open(image_file, 'r') as f:
-    #     im_data = json.load(f)
-    #
-    # corrupted_ims = ['1592.jpg', '1722.jpg', '4616.jpg', '4617.jpg']
-    # fns = []
-    # for i, img in enumerate(im_data):
-    #     basename = '{}.jpg'.format(img['image_id'])
-    #     if basename in corrupted_ims:
-    #         continue
-    #
-    #     filename1 = os.path.join('/share/yutong/projects/neural-motifs/data/VG_100K', basename)
-    #     filename2 = os.path.join('/share/yutong/projects/neural-motifs/data/VG_100K_2', basename)
-    #     print(filename1)
-    #     print(basename)
-    #     print(img['image_id'])
-    #     if os.path.exists(filename1) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+str(img['image_id'])+'.pt'):
-    #         print('fns1')
-    #         fns.append(filename1)
-    #     elif os.path.exists(filename2) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+str(img['image_id'])+'.pt'):
-    #         print('fns2')
-    #         fns.append(filename2)
-    # # assert len(fns) == 108073
-    # return fns
 
 
 def load_graphs(graphs_file, mode='train', num_im=-1, num_val_im=0, filter_empty_rels=True,
