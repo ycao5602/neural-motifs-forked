@@ -176,7 +176,7 @@ class VG(Dataset):
         else:
             im_size = (IM_SCALE, IM_SCALE, img_scale_factor)
 
-        gt_rels = self.relationships[index].copy()
+        gt_rels = np.array([[0,0,1],[0,0,1]])#self.relationships[index].copy()
         if self.filter_duplicate_rels:
             # Filter out dupes!
             assert self.mode == 'train'
@@ -191,7 +191,7 @@ class VG(Dataset):
             'img': self.transform_pipeline(image_unpadded),
             'img_size': im_size,
             'gt_boxes': gt_boxes,
-            'gt_classes': self.gt_classes[index].copy(),
+            'gt_classes': np.zeros(len(gt_boxes)),
             'gt_relations': gt_rels,
             'scale': img_scale_factor,  # Multiply the boxes by this.
             'index': index,
