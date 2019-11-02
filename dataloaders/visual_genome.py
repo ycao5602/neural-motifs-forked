@@ -48,7 +48,7 @@ class VG(Dataset):
         self.roidb_file = roidb_file
         self.dict_file = dict_file
         if mode=='val': mode ='dev'
-        self.image_file = '/share/yutong/projects/scan-master/data/coco_precomp/'+mode+'_ids.txt'
+        image_file = '/share/yutong/projects/scan-master/data/coco_precomp/'+mode+'_ids.txt'
         self.filter_non_overlap = filter_non_overlap
         self.filter_duplicate_rels = filter_duplicate_rels and self.mode == 'train'
 
@@ -262,8 +262,7 @@ def load_image_filenames(image_file, image_dir=VG_IMAGES):
                 filename1 = os.path.join('/share/yutong/projects/neural-motifs/data/val2014','COCO_val2014_'+line.strip().zfill(12)+'.jpg')
                 filename2 = os.path.join('/share/yutong/projects/neural-motifs/data/train2014',
                                          'COCO_train2014_' + line.strip().zfill(12)+'.jpg')
-                print(filename1)
-                print(filename2)
+
                 if os.path.exists(filename1):
                     fns.append(filename1)
                 elif os.path.exists(filename2):
