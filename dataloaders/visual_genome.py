@@ -270,6 +270,7 @@ def load_image_filenames(image_file, image_dir=VG_IMAGES):
                     fns.append(filename2)
                 else:
                     raise('id cannot be found')
+    print('fns',len(fns))
     return fns
     # #####################################
     #
