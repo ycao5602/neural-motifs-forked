@@ -43,13 +43,13 @@ class VG(Dataset):
         if mode not in ('test', 'train', 'val'):
             raise ValueError("Mode must be in test, train, or val. Supplied {}".format(mode))
         self.mode = mode
-        # self.mode = 'train'
+        self.mode = 'train'
 
         # Initialize
         self.roidb_file = roidb_file
         self.dict_file = dict_file
-        if mode=='val': mode ='dev'
-        image_file = '/share/yutong/projects/scan-master/data/coco_precomp/'+mode+'_ids.txt'
+        # if mode=='val': mode ='dev'
+        image_file = '/share/yutong/projects/bottom-up-attention/data/coco/'+mode+'.txt'
         self.filter_non_overlap = filter_non_overlap
         self.filter_duplicate_rels = filter_duplicate_rels and self.mode == 'train'
         #
@@ -143,7 +143,7 @@ class VG(Dataset):
 
     def __getitem__(self, index):
         print('index',index)
-        image_unpadded = Image.open(self.filenames[index]).convert('RGB')
+        image_unpadded = Image.open('/share/yutong/projects/neural-motifs/data/'+self.filenames[index]).convert('RGB')
 
         # Optionally flip the image if we're doing training
         flipped = self.is_train and np.random.random() > 0.5
@@ -263,18 +263,7 @@ def load_image_filenames(image_file, image_dir=VG_IMAGES):
     fns = []
     with open(image_file) as f:
         for line in f:
-            if not line.strip() in ind:
-                ind.append(line.strip())
-                filename1 = os.path.join('/share/yutong/projects/neural-motifs/data/val2014','COCO_val2014_'+line.strip().zfill(12)+'.jpg')
-                filename2 = os.path.join('/share/yutong/projects/neural-motifs/data/train2014',
-                                         'COCO_train2014_' + line.strip().zfill(12)+'.jpg')
-
-                if os.path.exists(filename1):
-                    fns.append(filename1)
-                else:# os.path.exists(filename2):
-                    fns.append(filename2)
-                #else:
-                #   raise('id cannot be found')
+            fns.append(line.split()[0].strip())
     print('fns',len(fns))
     return fns
     # #####################################
