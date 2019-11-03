@@ -64,23 +64,23 @@ class VG(Dataset):
 
         self.ind_to_classes, self.ind_to_predicates = load_info(dict_file)
 
-        if use_proposals:
-            print("Loading proposals", flush=True)
-            p_h5 = h5py.File(PROPOSAL_FN, 'r')
-            rpn_rois = p_h5['rpn_rois']
-            rpn_scores = p_h5['rpn_scores']
-            rpn_im_to_roi_idx = np.array(p_h5['im_to_roi_idx'][self.split_mask])
-            rpn_num_rois = np.array(p_h5['num_rois'][self.split_mask])
-
-            self.rpn_rois = []
-            for i in range(len(self.filenames)):
-                rpn_i = np.column_stack((
-                    rpn_scores[rpn_im_to_roi_idx[i]:rpn_im_to_roi_idx[i] + rpn_num_rois[i]],
-                    rpn_rois[rpn_im_to_roi_idx[i]:rpn_im_to_roi_idx[i] + rpn_num_rois[i]],
-                ))
-                self.rpn_rois.append(rpn_i)
-        else:
-            self.rpn_rois = None
+        # if use_proposals:
+        #     print("Loading proposals", flush=True)
+        #     p_h5 = h5py.File(PROPOSAL_FN, 'r')
+        #     rpn_rois = p_h5['rpn_rois']
+        #     rpn_scores = p_h5['rpn_scores']
+        #     rpn_im_to_roi_idx = np.array(p_h5['im_to_roi_idx'][self.split_mask])
+        #     rpn_num_rois = np.array(p_h5['num_rois'][self.split_mask])
+        #
+        #     self.rpn_rois = []
+        #     for i in range(len(self.filenames)):
+        #         rpn_i = np.column_stack((
+        #             rpn_scores[rpn_im_to_roi_idx[i]:rpn_im_to_roi_idx[i] + rpn_num_rois[i]],
+        #             rpn_rois[rpn_im_to_roi_idx[i]:rpn_im_to_roi_idx[i] + rpn_num_rois[i]],
+        #         ))
+        #         self.rpn_rois.append(rpn_i)
+        # else:
+        #     self.rpn_rois = None
 
         # You could add data augmentation here. But we didn't.
         # tform = []
@@ -93,13 +93,13 @@ class VG(Dataset):
         #         Hue(),
         #     ]))
 
-        tform = [
-            SquarePad(),
-            Resize(IM_SCALE),
-            ToTensor(),
-            Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ]
-        self.transform_pipeline = Compose(tform)
+        # tform = [
+        #     SquarePad(),
+        #     Resize(IM_SCALE),
+        #     ToTensor(),
+        #     Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        # ]
+        # self.transform_pipeline = Compose(tform)
 
     @property
     def coco(self):
@@ -146,7 +146,7 @@ class VG(Dataset):
         image_unpadded = Image.open(self.filenames[index]).convert('RGB')
 
         # Optionally flip the image if we're doing training
-        # flipped = self.is_train and np.random.random() > 0.5
+        flipped = self.is_train and np.random.random() > 0.5
         if self.mode == 'test': self.mode='dev'
         # gt_boxes = self.gt_boxes[index].copy()
         # gt_boxes, _, _, _, _= torch.load(os.path.join('/share/yutong/projects/faster-rcnn-full-2/data/vg_features', self.filenames[index].split('.')[0].split('/')[-1] + '.pt'))
@@ -271,10 +271,10 @@ def load_image_filenames(image_file, image_dir=VG_IMAGES):
 
                 if os.path.exists(filename1):
                     fns.append(filename1)
-                elif os.path.exists(filename2):
+                else:# os.path.exists(filename2):
                     fns.append(filename2)
-                else:
-                    raise('id cannot be found')
+                #else:
+                #   raise('id cannot be found')
     print('fns',len(fns))
     return fns
     # #####################################
