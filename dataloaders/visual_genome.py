@@ -142,10 +142,11 @@ class VG(Dataset):
         return train, val, test
 
     def __getitem__(self, index):
+        print('index',index)
         image_unpadded = Image.open(self.filenames[index]).convert('RGB')
 
         # Optionally flip the image if we're doing training
-        flipped = self.is_train and np.random.random() > 0.5
+        # flipped = self.is_train and np.random.random() > 0.5
         if self.mode == 'test': self.mode='dev'
         # gt_boxes = self.gt_boxes[index].copy()
         # gt_boxes, _, _, _, _= torch.load(os.path.join('/share/yutong/projects/faster-rcnn-full-2/data/vg_features', self.filenames[index].split('.')[0].split('/')[-1] + '.pt'))
