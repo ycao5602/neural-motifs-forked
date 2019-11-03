@@ -143,7 +143,7 @@ class VG(Dataset):
         return train#, val, test
 
     def __getitem__(self, index):
-        print('index',index)
+        # print('index',index)
         image_unpadded = Image.open('/share/yutong/projects/neural-motifs/data/'+self.filenames[index]).convert('RGB')
 
         # Optionally flip the image if we're doing training
