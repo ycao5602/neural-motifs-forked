@@ -137,9 +137,9 @@ class VG(Dataset):
     def splits(cls, *args, **kwargs):
         """ Helper method to generate splits of the dataset"""
         train = cls('train', *args, **kwargs)
-        val = cls('val', *args, **kwargs)
-        test = cls('test', *args, **kwargs)
-        return train, val, test
+        # val = cls('val', *args, **kwargs)
+        # test = cls('test', *args, **kwargs)
+        return train#, val, test
 
     def __getitem__(self, index):
         print('index',index)
@@ -441,7 +441,7 @@ class VGDataLoader(torch.utils.data.DataLoader):
     """
 
     @classmethod
-    def splits(cls, train_data, val_data, batch_size=3, num_workers=1, num_gpus=3, mode='det',
+    def splits(cls, train_data, batch_size=3, num_workers=1, num_gpus=3, mode='det',
                **kwargs):
         assert mode in ('det', 'rel')
         train_load = cls(
@@ -454,14 +454,14 @@ class VGDataLoader(torch.utils.data.DataLoader):
             # pin_memory=True,
             **kwargs,
         )
-        val_load = cls(
-            dataset=val_data,
-            batch_size=batch_size * num_gpus if mode=='det' else num_gpus,
-            shuffle=False,
-            num_workers=num_workers,
-            collate_fn=lambda x: vg_collate(x, mode=mode, num_gpus=num_gpus, is_train=False),
-            drop_last=True,
-            # pin_memory=True,
-            **kwargs,
-        )
-        return train_load, val_load
+        # val_load = cls(
+        #     dataset=val_data,
+        #     batch_size=batch_size * num_gpus if mode=='det' else num_gpus,
+        #     shuffle=False,
+        #     num_workers=num_workers,
+        #     collate_fn=lambda x: vg_collate(x, mode=mode, num_gpus=num_gpus, is_train=False),
+        #     drop_last=True,
+        #     # pin_memory=True,
+        #     **kwargs,
+        # )
+        return train_load#, val_load
