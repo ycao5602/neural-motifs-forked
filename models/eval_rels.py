@@ -24,7 +24,7 @@ train, val, test = VG.splits(num_val_im=conf.val_size, filter_duplicate_rels=Tru
                           filter_non_overlap=conf.mode == 'sgdet')
 if conf.test:
     val = test
-_, val_loader = VGDataLoader.splits(train, val, mode='rel',
+train_loader, val_loader = VGDataLoader.splits(train, val, mode='rel',
                                                batch_size=conf.batch_size,
                                                num_workers=conf.num_workers,
                                                num_gpus=conf.num_gpus)
@@ -106,7 +106,7 @@ if conf.cache is not None and os.path.exists(conf.cache):
 else:
     detector.eval()
     # print('len val',len(val_loader))
-    for val_b, batch in enumerate(tqdm(val_loader)):
+    for val_b, batch in enumerate(tqdm(train_loader)):
         # print('val_b',val_b)
         # if val_b>10:
         #     break
