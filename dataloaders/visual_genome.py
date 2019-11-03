@@ -43,13 +43,14 @@ class VG(Dataset):
         if mode not in ('test', 'train', 'val'):
             raise ValueError("Mode must be in test, train, or val. Supplied {}".format(mode))
         self.mode = mode
-        self.mode = 'train'
+        self.mode = 'val'
 
         # Initialize
         self.roidb_file = roidb_file
         self.dict_file = dict_file
         # if mode=='val': mode ='dev'
-        image_file = '/share/yutong/projects/bottom-up-attention/data/coco/'+mode+'.txt'
+        self.split='train'
+        image_file = '/share/yutong/projects/bottom-up-attention/data/coco/'+self.split+'.txt'
         self.filter_non_overlap = filter_non_overlap
         self.filter_duplicate_rels = filter_duplicate_rels and self.mode == 'train'
         #
@@ -150,7 +151,7 @@ class VG(Dataset):
         if self.mode == 'test': self.mode='dev'
         # gt_boxes = self.gt_boxes[index].copy()
         # gt_boxes, _, _, _, _= torch.load(os.path.join('/share/yutong/projects/faster-rcnn-full-2/data/vg_features', self.filenames[index].split('.')[0].split('/')[-1] + '.pt'))
-        gt_boxes = torch.load(os.path.join('/share/yutong/projects/faster-rcnn-full/'+self.mode,
+        gt_boxes = torch.load(os.path.join('/share/yutong/projects/faster-rcnn-full/'+self.split,
                                                        str(index) + '.pt'))
         gt_boxes = gt_boxes[:,:5]
 
@@ -158,7 +159,6 @@ class VG(Dataset):
 
         gt_boxes = gt_boxes[indices[:36]]
         gt_boxes = gt_boxes[:,:4].cpu().numpy()
-        print(gt_boxes)
 
         # Boxes are already at BOX_SCALE
         if self.is_train:
