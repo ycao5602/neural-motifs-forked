@@ -49,7 +49,7 @@ class VG(Dataset):
         self.roidb_file = roidb_file
         self.dict_file = dict_file
         # if mode=='val': mode ='dev'
-        self.split='val'
+        self.split='dev'
         image_file = '/share/yutong/projects/bottom-up-attention/data/coco/'+self.split+'.txt'
         self.filter_non_overlap = filter_non_overlap
         self.filter_duplicate_rels = filter_duplicate_rels and self.mode == 'train'
