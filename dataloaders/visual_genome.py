@@ -158,6 +158,7 @@ class VG(Dataset):
 
         gt_boxes = gt_boxes[indices[:36]]
         gt_boxes = gt_boxes[:,:4].cpu().numpy()
+        print(gt_boxes)
 
         # Boxes are already at BOX_SCALE
         if self.is_train:
