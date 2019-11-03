@@ -64,23 +64,23 @@ class VG(Dataset):
 
         self.ind_to_classes, self.ind_to_predicates = load_info(dict_file)
 
-        # if use_proposals:
-        #     print("Loading proposals", flush=True)
-        #     p_h5 = h5py.File(PROPOSAL_FN, 'r')
-        #     rpn_rois = p_h5['rpn_rois']
-        #     rpn_scores = p_h5['rpn_scores']
-        #     rpn_im_to_roi_idx = np.array(p_h5['im_to_roi_idx'][self.split_mask])
-        #     rpn_num_rois = np.array(p_h5['num_rois'][self.split_mask])
-        #
-        #     self.rpn_rois = []
-        #     for i in range(len(self.filenames)):
-        #         rpn_i = np.column_stack((
-        #             rpn_scores[rpn_im_to_roi_idx[i]:rpn_im_to_roi_idx[i] + rpn_num_rois[i]],
-        #             rpn_rois[rpn_im_to_roi_idx[i]:rpn_im_to_roi_idx[i] + rpn_num_rois[i]],
-        #         ))
-        #         self.rpn_rois.append(rpn_i)
-        # else:
-        #     self.rpn_rois = None
+        if use_proposals:
+            print("Loading proposals", flush=True)
+            p_h5 = h5py.File(PROPOSAL_FN, 'r')
+            rpn_rois = p_h5['rpn_rois']
+            rpn_scores = p_h5['rpn_scores']
+            rpn_im_to_roi_idx = np.array(p_h5['im_to_roi_idx'][self.split_mask])
+            rpn_num_rois = np.array(p_h5['num_rois'][self.split_mask])
+
+            self.rpn_rois = []
+            for i in range(len(self.filenames)):
+                rpn_i = np.column_stack((
+                    rpn_scores[rpn_im_to_roi_idx[i]:rpn_im_to_roi_idx[i] + rpn_num_rois[i]],
+                    rpn_rois[rpn_im_to_roi_idx[i]:rpn_im_to_roi_idx[i] + rpn_num_rois[i]],
+                ))
+                self.rpn_rois.append(rpn_i)
+        else:
+            self.rpn_rois = None
 
         # You could add data augmentation here. But we didn't.
         # tform = []
