@@ -151,9 +151,13 @@ class VG(Dataset):
         # gt_boxes, _, _, _, _= torch.load(os.path.join('/share/yutong/projects/faster-rcnn-full-2/data/vg_features', self.filenames[index].split('.')[0].split('/')[-1] + '.pt'))
         gt_boxes = torch.load(os.path.join('/share/yutong/projects/faster-rcnn-full/'+self.mode,
                                                        str(index) + '.pt'))
-        gt_boxes = gt_boxes[:,:4]
+        gt_boxes = gt_boxes[:,:5]
 
-        gt_boxes = gt_boxes.cpu().numpy()
+        _, indices = torch.sort(gt_boxes[:,4],descending=True)
+
+        gt_boxes = gt_boxes[indices[:36]]
+        gt_boxes = gt_boxes[:,:4].cpu().numpy()
+
         # Boxes are already at BOX_SCALE
         if self.is_train:
             # crop boxes that are too large. This seems to be only a problem for image heights, but whatevs
