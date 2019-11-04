@@ -49,8 +49,8 @@ class VG(Dataset):
         self.roidb_file = roidb_file
         self.dict_file = dict_file
         # if mode=='val': mode ='dev'
-        self.split='train'
-        image_file = '/share/yutong/projects/bottom-up-attention/data/coco/train4.txt'
+        self.split='dev'
+        image_file = '/share/yutong/projects/bottom-up-attention/data/coco/val.txt'
         self.filter_non_overlap = filter_non_overlap
         self.filter_duplicate_rels = filter_duplicate_rels and self.mode == 'train'
         #
@@ -265,7 +265,6 @@ def load_image_filenames(image_file, image_dir=VG_IMAGES):
     with open(image_file) as f:
         for line in f:
             fns.append(line.split()[0].strip())
-    fns = fns[18000:]
     print('fns',len(fns))
     return fns
     # #####################################
