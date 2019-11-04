@@ -87,7 +87,9 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         triplets = np.concatenate((rels_i,pred_scores_i),-1)
         print(rels_i.shape)
         print(pred_scores_i.shape)
+        print(triplets.shape)
         triplets = triplets[np.nonzero(pred_scores_i)]
+        print(triplets.shape)
         # print('triplets')
         # torch.save(triplets,'/share/yutong/projects/faster-rcnn-full/rel_test/'+str(batch_num)+'.pt')
         # all_pred_entries.append(pred_entry)
