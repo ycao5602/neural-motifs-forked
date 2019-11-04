@@ -90,6 +90,7 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         triplets = triplets[np.nonzero(pred_relations)]
         ind = np.argsort(triplets[:,3])
         triplets = triplets[:,:3]
+        triplets = triplets[ind]
         # triplets = triplets[-1:]
         # if len(triplets)>=20:
         #     triplets = triplets[ind[-20:]]
