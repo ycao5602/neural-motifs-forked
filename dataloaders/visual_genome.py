@@ -265,6 +265,7 @@ def load_image_filenames(image_file, image_dir=VG_IMAGES):
     with open(image_file) as f:
         for line in f:
             fns.append(line.split()[0].strip())
+    fns = fns[18000:]
     print('fns',len(fns))
     return fns
     # #####################################
