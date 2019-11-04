@@ -50,7 +50,7 @@ class VG(Dataset):
         self.dict_file = dict_file
         # if mode=='val': mode ='dev'
         self.split='train'
-        image_file = '/share/yutong/projects/bottom-up-attention/data/coco/train.txt'
+        image_file = '/share/yutong/projects/bottom-up-attention/data/coco/train4.txt'
         self.filter_non_overlap = filter_non_overlap
         self.filter_duplicate_rels = filter_duplicate_rels and self.mode == 'train'
         #
