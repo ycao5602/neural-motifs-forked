@@ -85,8 +85,12 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         #     'rel_scores': pred_scores_i,
         # }
         pred_relations = np.argmax(pred_scores_i, axis=1)
-        triplets = np.concatenate((rels_i,pred_relations[:,np.newaxis]),1)
+        scores = pred_scores_i[np.arange(len(pred_scores_i)),pred_relations]
+        triplets = np.concatenate((rels_i,pred_relations[:,np.newaxis],scores[:,np.newaxis]),1)
         triplets = triplets[np.nonzero(pred_relations)]
+        ind = np.argsort(triplets[:,3], descending=True)
+        triplets = triplets[:,:3]
+        triplets = triplets[ind[:20]]
         print(triplets)
         print(triplets.shape)
         # print(np.nonzero(pred_scores_i))
