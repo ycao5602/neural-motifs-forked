@@ -65,7 +65,7 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         det_res = [det_res]
     # print('det res: ',det_res)
 
-    for i, ((_, _, _, rels_i, pred_scores_i),_,_) in enumerate(det_res):
+    for i, ((_, objs_i, _, rels_i, pred_scores_i),_,_) in enumerate(det_res):
         # gt_entry = {
         #     'gt_classes': val.gt_classes[batch_num + i].copy(),
         #     'gt_relations': val.relationships[batch_num + i].copy(),
@@ -91,7 +91,9 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         ind = np.argsort(triplets[:,3])
         triplets = triplets[:,:3]
         triplets = triplets[ind]
+        print(objs_i)
         print(triplets)
+
         # triplets = triplets[-1:]
         # if len(triplets)>=20:
         #     triplets = triplets[ind[-20:]]
