@@ -89,7 +89,7 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         #     # 'obj_scores': obj_scores_i,
         #     'rel_scores': pred_scores_i,
         # }
-        torch.save(objs_i,'/share/yutong/projects/faster-rcnn-full/obj_dev/'+str(batch_num)+'.pt')
+        torch.save(objs_i,'/share/yutong/projects/faster-rcnn-full/obj_test/'+str(batch_num)+'.pt')
         # pred_relations = np.argmax(pred_scores_i, axis=1)
         # scores = pred_scores_i[np.arange(len(pred_scores_i)),pred_relations]
         # triplets = np.concatenate((rels_i,pred_relations[:,np.newaxis],scores[:,np.newaxis]),1)
