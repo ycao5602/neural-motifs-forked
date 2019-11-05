@@ -142,14 +142,12 @@ class VG(Dataset):
     def __getitem__(self, index):
         print(index,self.filenames[index])
         image_unpadded = Image.open(self.filenames[index]).convert('RGB')
-        w, h = image_unpadded.size
 
         # Optionally flip the image if we're doing training
         flipped = self.is_train and np.random.random() > 0.5
         # gt_boxes = self.gt_boxes[index].copy()
         gt_boxes, _, _, _, _= torch.load(os.path.join('/share/yutong/projects/faster-rcnn-full-2/data/vg_features', self.filenames[index].split('.')[0].split('/')[-1] + '.pt'))
         gt_boxes = gt_boxes.cpu().numpy()
-        gt_boxes = gt_boxes*BOX_SCALE/max(w,h)
         # Boxes are already at BOX_SCALE
         if self.is_train:
             # crop boxes that are too large. This seems to be only a problem for image heights, but whatevs
@@ -161,8 +159,9 @@ class VG(Dataset):
             # # crop the image for data augmentation
             # image_unpadded, gt_boxes = random_crop(image_unpadded, gt_boxes, BOX_SCALE, round_boxes=True)
 
+        w, h = image_unpadded.size
         box_scale_factor = BOX_SCALE / max(w, h)
-        # img_scale_factor = IM_SCALE / max(w, h)
+        img_scale_factor = IM_SCALE / max(w, h)
 
         if flipped:
             scaled_w = int(box_scale_factor * float(w))
@@ -195,7 +194,7 @@ class VG(Dataset):
             'gt_boxes': gt_boxes,
             'gt_classes': np.zeros(len(gt_boxes)),
             'gt_relations': gt_rels,
-            'scale': IM_SCALE / BOX_SCALE,# Multiply the boxes by this.
+            'scale': img_scale_factor,  # Multiply the boxes by this.
             'index': index,
             'flipped': flipped,
             'fn': self.filenames[index]
