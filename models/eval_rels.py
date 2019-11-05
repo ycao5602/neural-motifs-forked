@@ -97,7 +97,8 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         # ind = np.argsort(triplets[:,3])
         # triplets = triplets[:,:3]
         # triplets = triplets[ind]
-        # print(objs_i)
+        print(objs_i)
+        print(len(objs_i))
         # objs = []
         # for obj in objs_i:
         #     objs.append(label[str(int(obj))])
