@@ -70,7 +70,7 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         det_res = [det_res]
     # print('det res: ',det_res)
 
-    for i, ((_, objs_i, _, rels_i, pred_scores_i),_,_) in enumerate(det_res):
+    for i, ((boxes_i, objs_i, _, rels_i, pred_scores_i),_,_) in enumerate(det_res):
         # gt_entry = {
         #     'gt_classes': val.gt_classes[batch_num + i].copy(),
         #     'gt_relations': val.relationships[batch_num + i].copy(),
@@ -100,6 +100,8 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         objs = []
         for obj in objs_i:
             objs.append(label[str(int(obj))])
+        for i in range(len(objs)):
+            print(objs[i],boxes_i[i])
         print(triplets)
         for rel in triplets:
             print(objs[int(rel[0])], objs[int(rel[1])], pred[str(int(rel[2]))])
