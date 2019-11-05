@@ -10,7 +10,7 @@ from tqdm import tqdm
 from config import BOX_SCALE, IM_SCALE
 import dill as pkl
 import os
-
+import json
 conf = ModelConfig()
 if conf.model == 'motifnet':
     from lib.rel_model import RelModel
@@ -59,6 +59,11 @@ print('restored')
 all_pred_entries = []
 all_batches=[]
 problem=[]
+with open('/share/yutong/projects/neural-motifs/data/VG-SGG-dicts.json') as f:
+    da = json.load(f)
+    pred = da['idx_to_predicate']
+    label =da['idx_to_label']
+
 def val_batch(batch_num, b, thrs=(20, 50, 100)):
     det_res = detector[b]
     if conf.num_gpus == 1:
@@ -92,7 +97,12 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         triplets = triplets[:,:3]
         triplets = triplets[ind]
         print(objs_i)
+        objs = []
+        for obj in objs_i:
+            objs.append(label[str(int(obj))])
         print(triplets)
+        for rel in triplets:
+            print(objs[int(rel[0])], objs[int(rel[1])], pred[str(int(rel[2]))])
 
         # triplets = triplets[-1:]
         # if len(triplets)>=20:
