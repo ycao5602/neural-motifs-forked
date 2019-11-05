@@ -43,24 +43,21 @@ class VG(Dataset):
         if mode not in ('test', 'train', 'val'):
             raise ValueError("Mode must be in test, train, or val. Supplied {}".format(mode))
         self.mode = mode
-        self.mode = 'val'
 
         # Initialize
         self.roidb_file = roidb_file
         self.dict_file = dict_file
-        # if mode=='val': mode ='dev'
-        self.split='test'
-        image_file = '/share/yutong/projects/bottom-up-attention/data/coco/test.txt'
+        self.image_file = image_file
         self.filter_non_overlap = filter_non_overlap
         self.filter_duplicate_rels = filter_duplicate_rels and self.mode == 'train'
-        #
-        # self.split_mask, self.gt_boxes, self.gt_classes, self.relationships = load_graphs(
-        #     self.roidb_file, self.mode, num_im, num_val_im=num_val_im,
-        #     filter_empty_rels=filter_empty_rels,
-        #     filter_non_overlap=self.filter_non_overlap and self.is_train,
-        # )
 
-        self.filenames = load_image_filenames(image_file)
+        self.split_mask, self.gt_boxes, self.gt_classes, self.relationships = load_graphs(
+            self.roidb_file, self.mode, num_im, num_val_im=num_val_im,
+            filter_empty_rels=filter_empty_rels,
+            filter_non_overlap=self.filter_non_overlap and self.is_train,
+        )
+
+        self.filenames = load_image_filenames(image_file)[:20]
         # self.filenames = [self.filenames[i] for i in np.where(self.split_mask)[0]]
 
         self.ind_to_classes, self.ind_to_predicates = load_info(dict_file)
@@ -138,28 +135,21 @@ class VG(Dataset):
     def splits(cls, *args, **kwargs):
         """ Helper method to generate splits of the dataset"""
         train = cls('train', *args, **kwargs)
-        # val = cls('val', *args, **kwargs)
-        # test = cls('test', *args, **kwargs)
-        return train#, val, test
+        val = cls('val', *args, **kwargs)
+        test = cls('test', *args, **kwargs)
+        return train, val, test
 
     def __getitem__(self, index):
-        # print('index',index)
-        image_unpadded = Image.open('/share/yutong/projects/neural-motifs/data/'+self.filenames[index]).convert('RGB')
+        print(index,self.filenames[index])
+        image_unpadded = Image.open(self.filenames[index]).convert('RGB')
+        w, h = image_unpadded.size
 
         # Optionally flip the image if we're doing training
         flipped = self.is_train and np.random.random() > 0.5
-        if self.mode == 'test': self.mode='dev'
         # gt_boxes = self.gt_boxes[index].copy()
-        # gt_boxes, _, _, _, _= torch.load(os.path.join('/share/yutong/projects/faster-rcnn-full-2/data/vg_features', self.filenames[index].split('.')[0].split('/')[-1] + '.pt'))
-        gt_boxes = torch.load(os.path.join('/share/yutong/projects/faster-rcnn-full/'+self.split,
-                                                       str(index) + '.pt'))
-        gt_boxes = gt_boxes[:,:5]
-
-        _, indices = torch.sort(gt_boxes[:,4],descending=True)
-
-        gt_boxes = gt_boxes[indices[:36]]
-        gt_boxes = gt_boxes[:,:4].cpu().numpy()
-
+        gt_boxes, _, _, _, _= torch.load(os.path.join('/share/yutong/projects/faster-rcnn-full-2/data/vg_features', self.filenames[index].split('.')[0].split('/')[-1] + '.pt'))
+        gt_boxes = gt_boxes.cpu().numpy()
+        gt_boxes = gt_boxes*BOX_SCALE/max(w,h)
         # Boxes are already at BOX_SCALE
         if self.is_train:
             # crop boxes that are too large. This seems to be only a problem for image heights, but whatevs
@@ -171,9 +161,8 @@ class VG(Dataset):
             # # crop the image for data augmentation
             # image_unpadded, gt_boxes = random_crop(image_unpadded, gt_boxes, BOX_SCALE, round_boxes=True)
 
-        w, h = image_unpadded.size
         box_scale_factor = BOX_SCALE / max(w, h)
-        img_scale_factor = IM_SCALE / max(w, h)
+        # img_scale_factor = IM_SCALE / max(w, h)
 
         if flipped:
             scaled_w = int(box_scale_factor * float(w))
@@ -206,7 +195,7 @@ class VG(Dataset):
             'gt_boxes': gt_boxes,
             'gt_classes': np.zeros(len(gt_boxes)),
             'gt_relations': gt_rels,
-            'scale': img_scale_factor,  # Multiply the boxes by this.
+            'scale': IM_SCALE / BOX_SCALE,# Multiply the boxes by this.
             'index': index,
             'flipped': flipped,
             'fn': self.filenames[index]
@@ -260,38 +249,29 @@ def load_image_filenames(image_file, image_dir=VG_IMAGES):
     :param image_dir: directory where the VisualGenome images are located
     :return: List of filenames corresponding to the good images
     """
-    ind = []
+    with open(image_file, 'r') as f:
+        im_data = json.load(f)
+
+    corrupted_ims = ['1592.jpg', '1722.jpg', '4616.jpg', '4617.jpg']
     fns = []
-    with open(image_file) as f:
-        for line in f:
-            fns.append(line.split()[0].strip())
-    print('fns',len(fns))
+    for i, img in enumerate(im_data):
+        basename = '{}.jpg'.format(img['image_id'])
+        if basename in corrupted_ims:
+            continue
+
+        filename1 = os.path.join('/share/yutong/projects/neural-motifs/data/VG_100K', basename)
+        filename2 = os.path.join('/share/yutong/projects/neural-motifs/data/VG_100K_2', basename)
+        # print(filename1)
+        # print(basename)
+        # print(img['image_id'])
+        if os.path.exists(filename1) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+str(img['image_id'])+'.pt'):
+            # print('fns1')
+            fns.append(filename1)
+        elif os.path.exists(filename2) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+str(img['image_id'])+'.pt'):
+            # print('fns2')
+            fns.append(filename2)
+    # assert len(fns) == 108073
     return fns
-    # #####################################
-    #
-    # with open(image_file, 'r') as f:
-    #     im_data = json.load(f)
-    #
-    # corrupted_ims = ['1592.jpg', '1722.jpg', '4616.jpg', '4617.jpg']
-    # fns = []
-    # for i, img in enumerate(im_data):
-    #     basename = '{}.jpg'.format(img['image_id'])
-    #     if basename in corrupted_ims:
-    #         continue
-    #
-    #     filename1 = os.path.join('/share/yutong/projects/neural-motifs/data/VG_100K', basename)
-    #     filename2 = os.path.join('/share/yutong/projects/neural-motifs/data/VG_100K_2', basename)
-    #     print(filename1)
-    #     print(basename)
-    #     print(img['image_id'])
-    #     if os.path.exists(filename1) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+str(img['image_id'])+'.pt'):
-    #         print('fns1')
-    #         fns.append(filename1)
-    #     elif os.path.exists(filename2) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+str(img['image_id'])+'.pt'):
-    #         print('fns2')
-    #         fns.append(filename2)
-    # # assert len(fns) == 108073
-    # return fns
 
 
 def load_graphs(graphs_file, mode='train', num_im=-1, num_val_im=0, filter_empty_rels=True,
@@ -431,27 +411,27 @@ class VGDataLoader(torch.utils.data.DataLoader):
     """
 
     @classmethod
-    def splits(cls, train_data, batch_size=3, num_workers=1, num_gpus=3, mode='det',
+    def splits(cls, train_data, val_data, batch_size=3, num_workers=1, num_gpus=3, mode='det',
                **kwargs):
         assert mode in ('det', 'rel')
         train_load = cls(
             dataset=train_data,
             batch_size=batch_size * num_gpus,
-            shuffle=False,
+            shuffle=True,
             num_workers=num_workers,
             collate_fn=lambda x: vg_collate(x, mode=mode, num_gpus=num_gpus, is_train=True),
             drop_last=True,
             # pin_memory=True,
             **kwargs,
         )
-        # val_load = cls(
-        #     dataset=val_data,
-        #     batch_size=batch_size * num_gpus if mode=='det' else num_gpus,
-        #     shuffle=False,
-        #     num_workers=num_workers,
-        #     collate_fn=lambda x: vg_collate(x, mode=mode, num_gpus=num_gpus, is_train=False),
-        #     drop_last=True,
-        #     # pin_memory=True,
-        #     **kwargs,
-        # )
-        return train_load#, val_load
+        val_load = cls(
+            dataset=val_data,
+            batch_size=batch_size * num_gpus if mode=='det' else num_gpus,
+            shuffle=False,
+            num_workers=num_workers,
+            collate_fn=lambda x: vg_collate(x, mode=mode, num_gpus=num_gpus, is_train=False),
+            drop_last=True,
+            # pin_memory=True,
+            **kwargs,
+        )
+        return train_load, val_load
