@@ -91,6 +91,7 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         ind = np.argsort(triplets[:,3])
         triplets = triplets[:,:3]
         triplets = triplets[ind]
+        print(triplets)
         # triplets = triplets[-1:]
         # if len(triplets)>=20:
         #     triplets = triplets[ind[-20:]]
@@ -102,7 +103,7 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         # print(np.nonzero(pred_scores_i))
         # print(triplets.shape)
         # print('triplets')
-        torch.save(triplets,'/share/yutong/projects/faster-rcnn-full/rel_test/'+str(batch_num)+'.pt')
+        # torch.save(triplets,'/share/yutong/projects/faster-rcnn-full/rel_test/'+str(batch_num)+'.pt')
         # all_pred_entries.append(pred_entry)
 
 
