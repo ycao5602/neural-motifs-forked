@@ -57,7 +57,7 @@ class VG(Dataset):
             filter_non_overlap=self.filter_non_overlap and self.is_train,
         )
 
-        self.filenames = load_image_filenames(image_file)
+        self.filenames = load_image_filenames(image_file)[:3]
         # self.filenames = [self.filenames[i] for i in np.where(self.split_mask)[0]]
 
         self.ind_to_classes, self.ind_to_predicates = load_info(dict_file)
@@ -140,6 +140,7 @@ class VG(Dataset):
         return train, val, test
 
     def __getitem__(self, index):
+        print(index,self.filenames[index])
         image_unpadded = Image.open(self.filenames[index]).convert('RGB')
 
         # Optionally flip the image if we're doing training
@@ -259,14 +260,14 @@ def load_image_filenames(image_file, image_dir=VG_IMAGES):
 
         filename1 = os.path.join('/share/yutong/projects/neural-motifs/data/VG_100K', basename)
         filename2 = os.path.join('/share/yutong/projects/neural-motifs/data/VG_100K_2', basename)
-        print(filename1)
-        print(basename)
-        print(img['image_id'])
+        # print(filename1)
+        # print(basename)
+        # print(img['image_id'])
         if os.path.exists(filename1) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+str(img['image_id'])+'.pt'):
-            print('fns1')
+            # print('fns1')
             fns.append(filename1)
         elif os.path.exists(filename2) and os.path.exists('/share/yutong/projects/faster-rcnn-full-2/data/vg_features/'+str(img['image_id'])+'.pt'):
-            print('fns2')
+            # print('fns2')
             fns.append(filename2)
     # assert len(fns) == 108073
     return fns
