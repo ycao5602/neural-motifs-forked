@@ -57,7 +57,7 @@ class VG(Dataset):
             filter_non_overlap=self.filter_non_overlap and self.is_train,
         )
 
-        self.filenames = load_image_filenames(image_file)[:5]
+        self.filenames = load_image_filenames(image_file)[:20]
         # self.filenames = [self.filenames[i] for i in np.where(self.split_mask)[0]]
 
         self.ind_to_classes, self.ind_to_predicates = load_info(dict_file)
