@@ -89,22 +89,23 @@ def val_batch(batch_num, b, thrs=(20, 50, 100)):
         #     # 'obj_scores': obj_scores_i,
         #     'rel_scores': pred_scores_i,
         # }
-        pred_relations = np.argmax(pred_scores_i, axis=1)
-        scores = pred_scores_i[np.arange(len(pred_scores_i)),pred_relations]
-        triplets = np.concatenate((rels_i,pred_relations[:,np.newaxis],scores[:,np.newaxis]),1)
-        triplets = triplets[np.nonzero(pred_relations)]
-        ind = np.argsort(triplets[:,3])
-        triplets = triplets[:,:3]
-        triplets = triplets[ind]
-        print(objs_i)
-        objs = []
-        for obj in objs_i:
-            objs.append(label[str(int(obj))])
-        for i in range(len(objs)):
-            print(objs[i],boxes_i[i])
-        print(triplets)
-        for rel in triplets:
-            print(objs[int(rel[0])], objs[int(rel[1])], pred[str(int(rel[2]))])
+        torch.save(objs_i,'/share/yutong/projects/faster-rcnn-full/obj_train/'+str(batch_num)+'.pt')
+        # pred_relations = np.argmax(pred_scores_i, axis=1)
+        # scores = pred_scores_i[np.arange(len(pred_scores_i)),pred_relations]
+        # triplets = np.concatenate((rels_i,pred_relations[:,np.newaxis],scores[:,np.newaxis]),1)
+        # triplets = triplets[np.nonzero(pred_relations)]
+        # ind = np.argsort(triplets[:,3])
+        # triplets = triplets[:,:3]
+        # triplets = triplets[ind]
+        # print(objs_i)
+        # objs = []
+        # for obj in objs_i:
+        #     objs.append(label[str(int(obj))])
+        # for i in range(len(objs)):
+        #     print(objs[i],boxes_i[i])
+        # print(triplets)
+        # for rel in triplets:
+        #     print(objs[int(rel[0])], objs[int(rel[1])], pred[str(int(rel[2]))])
 
         # triplets = triplets[-1:]
         # if len(triplets)>=20:
